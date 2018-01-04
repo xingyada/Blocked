@@ -128,7 +128,7 @@ var Froogaloop = (function(){
                 value: params
             });
 
-        if (url.substr(0, 2) === '../../..//') {
+        if (url.substr(0, 2) === '//') {
             url = window.location.protocol + url;
         }
 
@@ -246,7 +246,7 @@ var Froogaloop = (function(){
      * @return url (String): Root domain of submitted url
      */
     function getDomainFromUrl(url) {
-        if (url.substr(0, 2) === '../../..//') {
+        if (url.substr(0, 2) === '//') {
             url = window.location.protocol + url;
         }
 
@@ -256,7 +256,7 @@ var Froogaloop = (function(){
         for(var i = 0, length = url_pieces.length; i < length; i++) {
             if(i<3) {domain_str += url_pieces[i];}
             else {break;}
-            if(i<2) {domain_str += '../../default.htm';}
+            if(i<2) {domain_str += '/';}
         }
 
         return domain_str;

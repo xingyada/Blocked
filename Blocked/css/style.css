@@ -3,10 +3,10 @@
 @font-face {
     font-family: 'BebasRegular';
     src: url('../fonts/bebas/BEBAS___-webfont.eot');
-    src: url('../fonts/bebas/BEBAS___-webfont.eot@#iefix') format('embedded-opentype'),
+    src: url('../fonts/bebas/BEBAS___-webfont_162a16fe.eot') format('embedded-opentype'),
          url('../fonts/bebas/BEBAS___-webfont.woff') format('woff'),
          url('../fonts/bebas/BEBAS___-webfont.ttf') format('truetype'),
-         url('../fonts/bebas/BEBAS___-webfont.svg#BebasRegular') format('svg');
+         url('../fonts/bebas/BEBAS___-webfont.svg') format('svg');
     font-weight: normal;
     font-style: normal;
 
@@ -29,7 +29,7 @@ body, html {
 textarea { overflow: auto; }
 :root .magnifier { filter: progid:DXImageTransform.Microsoft.gradient(enabled='false') !important; }
 img { border: none; }
-.inner_copyright{text-indent:-9999px;height:0;line-height:0;font-size:0;overflow:hidden;}
+
 
 /*CSS 3 ANIMATIONS
 -------------------------------------------------------------------------------------------------------------------*/
@@ -2401,32 +2401,32 @@ footer .connect a:hover {
     filter:alpha(opacity=100);
 }
 footer .connect #twitter {
-    background:url(../img/connect%20icons/twitter.png);
+    background:url(../img/connect icons/twitter.png);
     width: 22px;
     height: 17px;
 }
 footer .connect #facebook {
-    background:url(../img/connect%20icons/facebook.png);
+    background:url(../img/connect icons/facebook.png);
     width: 10px;
     height: 17px;
 }
 footer .connect #linkedin {
-    background:url(../img/connect%20icons/linkedin.png);
+    background:url(../img/connect icons/linkedin.png);
     width: 17px;
     height: 17px;
 }
 footer .connect #vimeo {
-    background:url(../img/connect%20icons/vimeo.png);
+    background:url(../img/connect icons/vimeo.png);
     width: 15px;
     height: 17px;
 }
 footer .connect #youtube {
-    background:url(../img/connect%20icons/youtube.png);
+    background:url(../img/connect icons/youtube.png);
     width: 15px;
     height: 17px;
 }
 footer .connect #flickr {
-    background:url(../img/connect%20icons/flickr.png);
+    background:url(../img/connect icons/flickr.png);
     width: 22px;
     height: 17px;
 }
