@@ -426,7 +426,18 @@
 <script src="./js/jquery.color.js"></script>
 <script src="js/jquery.easing.1.3.js"></script>
 <script src="./js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
-
+<script>
+$(function(){
+    $(document).click(function(){
+        var height=$(this).scrollTop();
+        alert(height)
+        _pt_sp_2.push('setCustomEvent',{
+            eventName:height,
+            isActiveElement:1
+            })
+        });
+})
+</script>
 </body>
 </html>
 <!-- # ------------------------------------------------------------------
