@@ -429,7 +429,7 @@
 <script>
 $(function(){
     $(document).click(function(){
-        var height=$(this).scrollTop();
+        var height=$(this).scrollTop()+'';
         alert(height)
         _pt_sp_2.push('setCustomEvent',{
             eventName:height,
