@@ -9,23 +9,31 @@
 		}
 	</style>
 </head>
-<body>
-    <script type="text/javascript">
-        window._pt_lt = new Date().getTime();
-        window._pt_sp_2 = [];
-        _pt_sp_2.push('setAccount,3c8a67ba');
-        var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-        (function() {
-            var atag = document.createElement('script'); atag.type = 'text/javascript'; atag.async = true;
-            atag.src = _protocol + 'js.ptengine.cn/3c8a67ba.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(atag, s);
-        })();
-    </script>
-            
+<body>       
 	啥玩意没有
 	<h1>
-	愁啥
+	瞅啥
 	</h1>
+    <h1 id="uaInfo">
+    
+    </h1>
 </body>
+<script>
+    var uaInfo = document.getElementById('uaInfo');
+    var ua = navigator.userAgent;
+    uaInfo.innerHTML = '这个浏览器的UA是：'+ua;
+</script>
+<script type="text/javascript">
+    window._pt_lt = new Date().getTime();
+    window._pt_sp_2 = [];
+    _pt_sp_2.push('setAccount,3c8a67ba');
+    var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+    (function() {
+        var atag = document.createElement('script'); atag.type = 'text/javascript'; atag.async = true;
+        atag.src = _protocol + 'js.ptengine.cn/3c8a67ba.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(atag, s);
+    })();
+</script>
+
 </html>
