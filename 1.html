@@ -54,7 +54,65 @@
 <script>
     var uaInfo = document.getElementById('uaInfo');
     var ua = navigator.userAgent;
-    uaInfo.innerHTML = '这个浏览器的UA是：'+ua;
+    var DOMstr = '';
+
+    if(isPCByPlat() || isPCByOSList(ua)){
+        DOMstr += '这是PC系统 <br>';
+    }
+    if(isMobileByOSList(ua)){
+        DOMstr += '这是手机系统 <br>';
+    }
+    
+    DOMstr += '这个浏览器的UA是：'+ua;
+    uaInfo.innerHTML = DOMstr;
+
+
+    function isPCByPlat() {
+      var platForm = navigator.platform.toLowerCase();
+
+      if (platForm.indexOf("win") > -1) {
+        return true;
+      }
+
+      var listIn = ["mac68k", "macppc", "macintosh", "macintel"];
+
+      for (var i = 0; i < listIn.length; i++) {
+        if (platForm == listIn[i]) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function isPCByOSList(uaArg) {
+      var pcOS = ["AIX", "Amiga", "BeOS", "DragonFly", "FreeBSD", "GNU", "Haiku", "HP-UX", "IRIX", "Joli", "Java", "Macintosh", "Minix", "MorphOS", "NetBSD", "OpenBSD", "PClinuxOS", "QNX x86pc", "SunOS", "Ubuntu", "Mint", "Red Hat", "Slackware", "SUSE", "PCLinuxOS", "Debian", "Fedora", "CentOS", "Vine", "Arch Linux", "Gentoo", "Kanotix", "Mandriva"];
+
+      for (var i = 0; i < pcOS.length; i++) {
+        if (uaArg.indexOf(pcOS[i]) > -1) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function isMobileByOSList(uaArg) {
+      var mobilephoneOS = ["Android", "AROS", "Bada", "BlackBerry", "Chromium", "CrOS", "Danger Hiptop", "Inferno", "iPhone", "iPad", "iPod", "Nintendo DS", "Nintendo Wii", "Palm OS", "PLAYSTATION", "Syllable", "SymbOS", "Symbian", "Tizen", "webOS", "WebTV", "Windows CE", "Windows Mobile", "Windows Phone", "Xbox"];
+
+      for (var i = 0; i < mobilephoneOS.length; i++) {
+        if (uaArg.indexOf(mobilephoneOS[i]) > -1) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+
+
+
+
 </script>
 
 <script type="text/javascript">
