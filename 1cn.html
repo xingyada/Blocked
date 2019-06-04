@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>啥玩意没有</title>
     <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
 	<style>
 		body{
 			height:1000px;
@@ -19,6 +20,9 @@
         }
         a{
             xdisplay: inline-block;
+        }
+        .bgcolor{
+            background: aqua;
         }
 
 	</style>
@@ -41,7 +45,24 @@
         <li>
             <a class="lh">1111222</a>
         </li>
+        <li class="">1111222</li>
         <li>1111222</li>
+        <li>1111222</li>
+        <li>222222222</li>
+        <li>222222222</li>
+        <li>222222222</li>
+        <li>222222222</li>
+        <li>222222222</li>
+        <li>222222222</li>
+        <li>333333333333</li>
+        <li>333333333333</li>
+        <li>333333333333</li>
+        <li>333333333333</li>
+        <li>333333333333</li>
+        <li>333333333333</li>
+        <li>333333333333</li>
+        <li>333333333333</li>
+		<li>1111222</li>
         <li>1111222</li>
         <li>1111222</li>
         <li>222222222</li>
@@ -117,12 +138,17 @@
 
       return false;
     }
-
-
-
-
-
 </script>
+<script>
+window.onscroll = function(){
+    sTop = document.documentElement.scrollTop;
+    if(sTop>2000){
+        $('li').html('aaaaaaaaaaaa');
+        $('li').addClass('bgcolor');
+    }
+}
+</script>
+
 
 <script type="text/javascript">
 //中国区
