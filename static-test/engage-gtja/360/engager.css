@@ -1,0 +1,709 @@
+/** *************************** engage laryer style start *************** */
+.engage-layer-open {
+    overflow: hidden;
+}
+/** layer*/
+.engage-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(51, 51, 51, 0.64);
+    background-attachment: scroll;
+    width: 100%;
+    height: 100%;
+    z-index: 2147483646;
+}
+/** *************************** engage laryer style end *************** */
+
+/* ***************************** style init  **************************** */
+.pt-engage-div,.pt-engage-ul,.pt-engage-ol,.pt-engage-li,.pt-engage-p,.pt-engage-span,.pt-engage-a {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+.pt-engage-div:before,
+.pt-engage-ul:before,
+.pt-engage-li:before,
+.pt-engage-p:before,
+.pt-engage-a,
+.pt-engage-a:before {
+    box-sizing:border-box;
+}
+.engage-reset__class b, .engage-reset__class strong{
+    font-weight:bold;
+    font-style:inherit;
+}
+.engage-reset__class a{
+    text-decoration: underline;
+}
+.engage-reset__class u{
+    font-style:inherit;
+    font-weight:inherit;
+}
+.engage-reset__class i{
+    font-style:italic;
+    font-weight:inherit;
+}
+.engage-reset__class strike {
+    text-decoration: line-through;
+}
+.engage-reset__class p {
+    line-height:24px;
+    margin:0;
+}
+.engage-reset__class h1,
+.engage-reset__class h2,
+.engage-reset__class h3,
+.engage-reset__class h4,
+.engage-reset__class h5,
+.engage-reset__class h6{
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+    margin-bottom:10px;
+}
+.engage-reset__class h1{
+    font-size: 36px;
+}
+.engage-reset__class h2{
+    font-size: 30px;
+}
+.engage-reset__class h3{
+    font-size: 24px;
+}
+.engage-reset__class h4{
+    font-size: 18px;
+}
+.engage-reset__class h5{
+    font-size: 14px;
+}
+.engage-reset__class h6{
+    font-size: 12px;
+}
+/* ************************* style init end  **************************** */
+
+
+/******************** template container style start ****************** */
+.engage-promo__v-common {
+    border-radius:4px;
+    position: fixed;
+    color: #344563;
+    z-index:2147483645; 
+    cursor:default;
+    box-shadow:0 12px 27px 2px rgba(0,0,0,.4);
+    padding:30px;
+    box-sizing:border-box;
+    display: table !important; 
+    opacity:1!important;
+    font-family: Arial,"Microsoft YaHei","黑体","宋体","Myriad Set Pro", 'Meiryo', 'Hiragino Kaku Gothic Pro', 'メイリオ', 'ヒラギノ角ゴ Pro W3',sans-serif;
+}
+.engage-promo__v-common.no-padding,
+.engage-promo__v-common.sp-mode.no-padding {
+    padding:0;
+}
+/** style for smartphone */ 
+.engage-promo__v-common.sp-mode {
+    padding:20px;
+}
+.engage-promo__v-common.sp-mode .engage-components__itb-button {
+    height:24px;
+    padding:4px 15px;
+    line-height:16px;
+    font-size:12px;
+    margin-top:20px;
+}
+
+.engage-promo__v-common.pos-center {
+    top:50%;
+    left:50%;
+    -webkit-transform:translate(-50%,-50%);
+    -moz-transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%);
+    z-index: 2147483647!important;
+}
+.engage-promo__v-common.pos-left {
+    left:30px;
+    bottom:45px;
+}
+.engage-promo__v-common.pos-right {
+    /* right:30px; */
+    bottom:45px;
+    left:100%;
+    transform:translateX(-100%);
+    margin-left:-30px;
+}
+.engage-promo__v-common.fadeIn {
+    -webkit-animation:fadeIn 0.5s linear;
+    -moz-animation:fadeIn 0.5s linear;
+    animation: fadeIn 0.5s linear;
+}
+.engage-promo__v-common.fadeIn-left {
+    -webkit-animation:fadeIn-left 0.5s linear;
+    -moz-animation:fadeIn-left 0.5s linear;
+    animation: fadeIn-left 0.5s linear;
+}
+.engage-promo__v-common.fadeIn-right {
+    -webkit-animation:fadeIn-right 0.5s linear;
+    -moz-animation:fadeIn-right 0.5s linear;
+    animation: fadeIn-right 0.5s linear;
+}
+.engage-promo__v-common.fadeIn-right-margin {
+    -webkit-animation:fadeIn-right-margin 0.2s linear;
+    -moz-animation:fadeIn-right-margin 0.2s linear;
+    animation: fadeIn-right-margin 0.2s linear;
+}
+/******************** template container style end ****************** */
+
+
+
+/* ****************** components(image + text + button) start ******* */
+.engage-components__itb {
+    display:flex;
+    display:-webkit-flex;
+    display:-ms-flexbox;
+    /* flex-direction: row | row-reverse*/
+    flex-direction:row;   
+    align-items: center;
+}
+.engage-components__itb .engage-components__itb-img {
+    font-size:0; 
+}
+.engage-components__itb .engage-components__itb-text a{
+    cursor:pointer;
+    color:#0066cc;
+}
+.engage-components__itb .engage-components__itb-tb {
+    word-break:break-word;
+}
+/* button */
+.engage-components__itb .engage-components__itb-button {
+    max-width: 100%;
+    padding: 10px 30px;
+    height: 36px;
+    line-height: 16px;
+    border-radius: 4px;
+    font-weight:600;
+    border:none;
+    cursor:pointer;
+    font-size:16px;
+    display:inline-block;
+    margin-top:30px;
+    white-space: nowrap;
+    text-decoration: none;
+    user-select:none;
+    text-align:center;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    box-sizing:border-box;
+}
+/* close */
+.engage-promotion__close {
+    font-size:19px;
+    position: absolute;
+    right: -8px;
+    top: -8px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    transition: 0.2s linear;
+    border-radius: 50%;
+    background-color: #333333;
+    border: 1px solid #ffffff;
+    box-sizing:border-box;
+    display: block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: #ffffff!important;
+    font-family: Arial,"Microsoft YaHei","黑体","宋体",sans-serif;
+}
+.engage-promotion__close:hover {
+    -webkit-transform:rotate(90deg);
+    -moz-transform:rotate(90deg);
+    -ms-transform:rotate(90deg);
+    transform:rotate(90deg);
+}
+/* branding */
+.engage-promotion__friendLink {
+    position: absolute;
+    bottom:-34px;
+    left:50%;
+    -webkit-transform:translateX(-50%);
+    -moz-transform:translateX(-50%);
+    transform:translateX(-50%);
+    font-size:12px;
+    white-space:nowrap;
+    background-color:#333333;
+    color:#ffffff;
+    border-radius:16px;
+    padding:5px 12px;
+    height:22px;
+    line-height:12px;
+    color:#ffffff;
+    user-select:none;
+    text-decoration: none;
+    font-family: Arial,"Microsoft YaHei","黑体","宋体",sans-serif;
+    text-decoration: none!important;
+}
+/* ****************** components(image + text + button) end ******* */
+
+/* ****************************** animation start *********************** */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn-left {
+    from {
+        opacity: 0;
+        left: -100%;
+    }
+
+    to {
+        opacity: 1;
+        left: "30px";
+    }
+}
+
+@-webkit-keyframes fadeIn-left {
+    from {
+        opacity: 0;
+        left: -100%;
+    }
+
+    to {
+        opacity: 1;
+        left: "30px";
+    }
+}
+
+@-moz-keyframes fadeIn-left {
+    from {
+        opacity: 0;
+        left: -100%;
+    }
+
+    to {
+        opacity: 1;
+        left: "30px";
+    }
+}
+
+@keyframes fadeIn-right {
+    from {
+        opacity: 0;
+        right: -100%;
+    }
+
+    to {
+        opacity: 1;
+        right: "30px";
+    }
+}
+
+@-webkit-keyframes fadeIn-right {
+    from {
+        opacity: 0;
+        right: -100%;
+    }
+
+    to {
+        opacity: 1;
+        right: "30px";
+    }
+}
+
+@-moz-keyframes fadeIn-right {
+    from {
+        opacity: 0;
+        right: -100%;
+    }
+
+    to {
+        opacity: 1;
+        right: "30px";
+    }
+}
+@-webkit-keyframes fadeIn-right-margin {
+    from{
+        opacity:0;
+        margin-left:0;
+    }
+    to {
+        opacity:1;
+        margin-left:-30px;
+    }
+}
+@-moz-keyframes fadeIn-right-margin {
+    from{
+        opacity:0;
+        margin-left:0;
+    }
+    to {
+        opacity:1;
+        margin-left:-30px;
+    }
+}
+@keyframes fadeIn-right-margin {
+    from{
+        opacity:0;
+        margin-left:0;
+    }
+    to {
+        opacity:1;
+        margin-left:-30px;
+    }
+}
+/* ****************************** animation end *********************** */
+
+
+
+/* ************************************ below is the style of old template ******************** */
+/** ******************** style init start ******************** */
+.engage-promotion-text b,
+.engage-promotion-text strong {
+    font-weight: bold;
+    font-style: inherit;
+}
+
+.engage-promotion-text a {
+    text-decoration: underline;
+    color:#0066cc;
+}
+.engage-promotion-text a:hover {
+    text-decoration: none;
+}
+.engage-promotion-text u {
+    font-style:inherit;
+    font-weight:inherit;
+}
+
+.engage-promotion-text i {
+    font-style: italic;
+    font-weight:inherit;
+}
+.engage-promotion-text strike {
+    text-decoration: line-through;
+}
+.engage-promotion-text p {
+    line-height: 24px;
+    margin: 0;
+    font-size:14px;
+}
+
+.engage-promotion-wrap h1,
+.engage-promotion-wrap h2,
+.engage-promotion-wrap h3,
+.engage-promotion-wrap h4,
+.engage-promotion-wrap h5,
+.engage-promotion-wrap h6 {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+    margin-bottom: 10px;
+}
+
+.engage-promotion-wrap h1 {
+    font-size: 36px;
+}
+
+.engage-promotion-wrap h2 {
+    font-size: 30px;
+}
+
+.engage-promotion-wrap h3 {
+    font-size: 24px;
+}
+
+.engage-promotion-wrap h4 {
+    font-size: 18px;
+}
+
+.engage-promotion-wrap h5 {
+    font-size: 14px;
+}
+
+.engage-promotion-wrap h6 {
+    font-size: 12px;
+}
+
+.engage-promotion-wrap.engage-promotion-wrap-sp h1 {
+    font-size: 26px;
+}
+
+.engage-promotion-wrap.engage-promotion-wrap-sp h2 {
+    font-size: 20px;
+}
+
+.engage-promotion-wrap.engage-promotion-wrap-sp h3 {
+    font-size: 18px;
+}
+
+.engage-promotion-wrap.engage-promotion-wrap-sp h4 {
+    font-size: 16px;
+}
+
+.engage-promotion-wrap.engage-promotion-wrap-sp h5 {
+    font-size: 14px;
+}
+
+.engage-promotion-wrap.engage-promotion-wrap-sp h6 {
+    font-size: 12px;
+}
+
+.pt-hide {
+    display: none !important;
+}
+.engage-promotion-wrap a:hover {
+    text-decoration: none;
+}
+.engage-promotion-wrap:hover {
+    text-decoration: none;
+    cursor: default;
+}
+/** ************************* style init end ********************** */
+
+
+/** **************************** main style start ****************** */
+.engage-promotion-wrap {
+    border-radius: 4px;
+    position: fixed;
+    color: #333333;
+    display: block !important;
+    opacity:1!important; 
+    z-index: 2147483645;
+    box-shadow: 0 12px 27px 2px rgba(0, 0, 0, .4);
+    cursor: default;
+}
+.engage-promotion-wrap.engage-leftright-structure-wrap {
+    display: table!important;
+    table-layout: fixed;
+}
+.engage-promotion-wrap .engage-promo-content {
+    width: 100%;
+}
+.engage-promotion-wrap.engage-leftright-structure-wrap .engage-promo-content .engage-promotion-text,
+.engage-promotion-wrap.engage-leftright-structure-wrap .engage-promo-content .engage-promotion-img {
+    width: 100%;
+    display: table-cell;
+    vertical-align: middle;
+}
+.engage-promotion-wrap.pos-center {
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    z-index: 2147483647!important;
+}
+.engage-promotion-wrap.pos-left {
+    left: 30px;
+    bottom: 45px;
+}
+.engage-promotion-wrap.pos-right {
+    right: 30px;
+    bottom: 45px;
+}
+.engage-promotion-wrap .engage-promotion-img {
+    padding: 30px 0;
+    user-select: none;
+}
+.engage-promotion-wrap .engage-promotion-img:hover {
+    cursor: default;
+}
+.engage-promotion-wrap .engage-promotion-text {
+    padding: 30px;
+}
+/** button */
+.engage-promotion-wrap .engage-promotion-btn {
+    max-width: 100%;
+    padding: 5px 30px;
+    height: 28px;
+    line-height: 18px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-block;
+    margin-top: 20px;
+    white-space: nowrap;
+    text-decoration: none;
+    user-select: none;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing:border-box;
+}
+/** close */
+.engage-promotion-wrap .engage-promotion-close {
+    font-size: 19px;
+    position: absolute;
+    right: -8px;
+    top: -8px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-transition: 0.2s linear;
+    -moz-transition: 0.2s linear;
+    transition: 0.2s linear;
+    border-radius: 50%;
+    background-color: #333333;
+    border: 1px solid #ffffff;
+    box-sizing:border-box;
+    display: block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: #ffffff;
+    box-sizing:border-box;
+    font-family: "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif;
+}
+
+.engage-promotion-wrap .engage-promotion-close:hover {
+    -webkit-transform:rotate(90deg);
+    -moz-transform:rotate(90deg);
+    -ms-transform:rotate(90deg);
+    transform: rotate(90deg);
+}
+.engage-promotion-wrap .engage-tc {
+    text-align: center;
+}
+.engage-promotion-wrap .engage-promotion-img .engage-a-img {
+    max-width: 156px;
+    opacity: 0;
+    visibility: hidden;
+}
+/** branding */
+.engage-promotion-wrap .engage-friendLink {
+    position: absolute;
+    bottom: -34px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    transform: translateX(-50%);
+    font-size: 12px;
+    white-space: nowrap;
+    background-color: #333333;
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 5px 12px;
+    height: 22px;
+    line-height: 12px;
+    color: #ffffff;
+    user-select: none;
+    text-decoration: none;
+    font-family: "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif;
+}
+
+/* style for smartPhone */
+.engage-promotion-wrap.engage-promotion-wrap-sp {
+    padding: 20px 16px;
+}
+.engage-promotion-wrap.engage-promotion-wrap-sp.pos-center{
+    top:50%;
+    left:50%;
+    -webkit-transform:translate(-50%,-50%);
+    -moz-transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%);
+}
+.engage-promotion-wrap.engage-promotion-wrap-sp.pos-left{
+    top:unset;
+    left:0;
+    bottom:0;
+    -webkit-transform:translate(10px,-10px) scale(0.65);
+    -moz-transform:translate(10px,-10px) scale(0.65);
+    transform:translate(10px,-10px) scale(0.65);
+    -webkit-transform-origin:left bottom;
+    -moz-transform-origin:left bottom;
+    transform-origin:left bottom;
+}
+.engage-promotion-wrap.engage-promotion-wrap-sp.pos-right{
+    top:unset;
+    left:unset;
+    right:0;
+    bottom:0;
+    -webkit-transform:translate(-10px,-10px) scale(0.65);
+    -moz-transform:translate(-10px,-10px) scale(0.65);
+    transform:translate(-10px,-10px) scale(0.65);
+    -webkit-transform-origin:right bottom;
+    -moz-transform-origin:right bottom;
+    transform-origin:right bottom;
+}
+.engage-promotion-wrap .engage-promotion-title,
+.engage-promotion-wrap.engage-promotion-wrap-sp .engage-promotion-title {
+    font-size: 14px;
+    word-break:break-word;
+}
+.engage-promotion-wrap .engage-promotion-title p,
+.engage-promotion-wrap.engage-promotion-wrap-sp .engage-promotion-title p {
+    font-size: 14px;
+    word-break:break-word;
+}
+
+.engage-promotion-wrap.engage-promotion-wrap-sp .engage-promotion-text {
+    padding: 0px;
+}
+.engage-promotion-wrap.engage-promotion-wrap-sp .engage-promotion-img {
+    padding: 0px;
+}
+
+.engage-promotion-wrap.engage-promotion-wrap-sp .engage-promotion-btn {
+    width: 100%;
+    height: 38px;
+    line-height:28px;
+    padding: 5px 20px;
+    font-size: 18px;
+}
+/* hide branding for smartPhone */
+.engage-promotion-wrap.engage-promotion-wrap-sp .engage-friendLink {
+    display:none!important;
+}
+
+.engage-promotion-wrap.fadeIn {
+    -webkit-animation: fadeIn 0.5s linear;
+    -moz-animation: fadeIn 0.5s linear;
+    animation: fadeIn 0.5s linear;
+}
+
+.engage-promotion-wrap.fadeIn-left {
+    -webkit-animation: fadeIn-left 0.5s linear;
+    -moz-animation: fadeIn-left 0.5s linear;
+    animation: fadeIn-left 0.5s linear;
+}
+
+.engage-promotion-wrap.fadeIn-right {
+    -webkit-animation: fadeIn-right 0.5s linear;
+    -moz-animation: fadeIn-right 0.5s linear;
+    animation: fadeIn-right 0.5s linear;
+}
