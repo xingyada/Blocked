@@ -1,0 +1,379 @@
+@charset "utf-8";
+
+/* CSS Document */
+
+a, abbr, address, article, aside, audio, b, blockquote, body, caption, cite, code, dd, del, dfn, dialog, div, dl, dt, em, fieldset, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, html, i, iframe, img, ins, kbd, label, legend, li, mark, menu, nav, object, ol, p, pre, q, samp, section, small, span, strong, sub, sup, tfoot, th, thead, time, tr, ul, var, video {
+    border: 0;
+    margin: 0;
+    outline: 0;
+    padding: 0;
+    font-size: 100%;
+    font-weight: normal;
+}
+
+body {
+    margin: 0 auto;
+    padding: 0;
+    height: 100%;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-text-size-adjust: none;
+    background-color: #f7f7f7;
+    font: 16px/1.25 PingFangSC-Regular, Helvetica, "Droid Sans", Arial, sans-serif;
+}
+
+html {
+    -webkit-text-size-adjust: none;
+}
+
+body * {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    color: #000000;
+}
+
+input,
+button,
+textarea,
+select {
+    -webkit-appearance: none;
+    font-size: 1rem;
+    outline: none;
+}
+
+img {
+    border: 0;
+    -ms-interpolation-mode: bicubic;
+    vertical-align: middle;
+    font-size: 0px;
+    line-height: 0px;
+    max-width: 100%;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    font-size: 1rem;
+}
+
+th,
+td,
+caption {
+    vertical-align: top;
+    text-align: left;
+    font-size: 1rem;
+}
+
+ul,
+li {
+    display: block;
+    list-style: none;
+}
+
+.clear {
+    width: 0px;
+    height: 0px;
+    font-size: 0;
+    clear: both;
+}
+
+.opacity {
+    -webkit-animation: opacity 0.3s linear;
+    animation: opacity 0.3s linear;
+}
+@-webkit-keyframes opacity {
+    0% {
+        opacity:0;
+    }
+    100% {
+        opacity:1;
+    }
+}
+@keyframes opacity {
+    0% {
+        opacity:0;
+    }
+    100% {
+        opacity:1;
+    }
+}
+
+
+header {width: 100%; height: 42px; background: url("../images/borgrayb.png") repeat-x bottom #fff; background-size: 1px 1px; position: fixed; left: 0; top: 0; z-index: 999;}
+header.white {width: 100%; height: 42px; background: #023893 url("../images/bg_header.gif") ; background-size:100% 100%; position: fixed; left: 0; top: 0; z-index: 999;}
+.logo {width: auto; height: auto; font-size: 0; position: absolute; left: 15px; top: 0;}
+.logo a {display: table; width: auto; height: 42px;}
+.logo a span {display: table-cell; vertical-align: middle; text-align: left;}
+.logo a span img {height: 28px;}
+
+.headnav {width: auto; height: 42px; font-size: 0; position: absolute; right: 5px; top: 0;}
+.headnav ul li {width: 42px; height: 42px; float: left;}
+.headnav ul li a {display: block; width: 42px; height: 42px; padding: 11px; position: relative;}
+.headnav ul li a b {display: block; width: 12px; height: 12px; background: #ec0000; border-radius: 50%; text-align: center; line-height: 12px; font-size: 8px; color: #fff; font-weight: bold; position: absolute; right: 6px; top: 8px;}
+.headnav ul li a i {display: block; width: 20px; height: 20px; background-image: url(../images/headicon.png); background-repeat: no-repeat; background-size: auto 20px;}
+.headnav.white ul li a i {display: block; width: 20px; height: 20px; background-image: url(../images/headicon_w.png); background-repeat: no-repeat; background-size: auto 20px;}
+.headnav ul li a i.headnav-search {background-position: 0px 0px;}
+.headnav ul li a i.headnav-history {background-position: -20px 0px;}
+.headnav ul li a i.headnav-notice {background-position: -40px 0px;}
+
+header .title {width: auto; height: 42px; line-height: 42px; text-align: center; font-size: 16px; color: #333333; font-weight: bold;}
+header .opera {width: 42px; height: 42px; position: absolute; top: 0;}
+header .opera.opera-left {left: 0;}
+header .opera.opera-right {right: 0;}
+header .opera a {display: block; width: 42px; height: 42px; padding: 11px; position: relative;}
+header .opera a i {display: block; width: 20px; height: 20px; background-image: url(../images/headicon.png); background-repeat: no-repeat; background-size: auto 20px;}
+header .opera a i.back {background-position: -60px 0px;}
+header .opera a i.search {background-position: 0px 0px;}
+header .opera a i.share {background-position: -80px 0px;}
+header .opera a i.close {background-position: -100px 0px;}
+header .headbtn {width: auto; height: 24px; position: absolute; right: 10px; top: 50%; margin-top: -12px;}
+header .headbtn a {display: block; width: auto; height: 24px; line-height: 22px; font-size: 12px; color: #999999; border: 1px solid #ddd; border-radius: 3px; text-align: center; padding: 0 10px;}
+header .headlink {width: auto; height: 24px; position: absolute; right: 10px; top: 50%; margin-top: -12px;}
+header .headlink a {display: block; width: auto; height: 24px; line-height: 24px; font-size: 12px; color: #0787d1;}
+
+header .headsearch {width: auto; height: 32px; position: absolute; left: 125px; right: 15px; top: 50%; margin-top: -16px; padding-right: 40px;}
+header .headsearch input.inp {width: 100%; height: 32px; border: 1px solid #ddd; border-radius: 20px; padding: 0 15px; font-size: 14px; color: #333;}
+header .headsearch a.back {display: block; width: auto; height: 32px; line-height: 32px; font-size: 14px; color: #333; position: absolute; right: 0; top: 0;}
+
+
+footer {width: 100%; height: 50px; font-size: 0; position: fixed; left: 0; bottom: 0; z-index: 999;
+    background-color: #fff;
+    background-image: url(../images/borgrayt.png);
+    background-repeat: repeat-x;
+    background-position: center top;
+    background-size: 1px 1px;
+}
+
+footer nav {width: 20%; height: 50px; float: left;}
+footer nav a {display: block; width: auto; height: 50px; padding-top: 8px;}
+footer nav a span {display: block; margin: 0 auto; text-align: center;}
+
+footer nav a span.icon {width: 20px; height: 20px; background-image: url(../images/footnav.png); background-repeat: no-repeat; background-size: 100px 40px; background-position-y: 0px;}
+footer nav a span.icon-home     {background-position-x: 0px;}
+footer nav a span.icon-school   {background-position-x: -20px;}
+footer nav a span.icon-menu     {background-position-x: -40px;}
+footer nav a span.icon-live     {background-position-x: -60px;}
+footer nav a span.icon-user     {background-position-x: -80px;}
+footer nav a span.text {width: auto; height: auto; font-size: 10px; color: #999999; padding-top: 5px;}
+
+footer nav a.on span.icon {background-position-y: -20px;}
+footer nav a.on span.text {color: #006097;}
+
+footer.gray {background-color: #f3f3f3;}
+footer .disinp {width: auto; height: 50px; padding: 8px 80px 8px 10px;}
+footer .disinp input.inp {display: block; width: 100%; height: 34px; background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 10px; line-height: 14px; font-size: 14px; color: #333;}
+footer .disinp input.btn {display: block; width: 60px; height: 34px; position: absolute; right: 10px; top: 8px; background: #006097; border: 0 none; text-align: center; line-height: 34px; font-size: 14px; color: #fff; border-radius: 5px;}
+
+section.wrapper {width: auto; height: auto; padding: 42px 0px 50px 0px;}
+section.wrapper.noTop {padding-top: 0px;}
+section.wrapper.noBot {padding-bottom: 0px;}
+
+
+
+.tabsfilter {width: auto; height: 80px; position: relative; z-index: 9;}
+.tabsfilter.noSort {height: 44px;}
+.toplocking {width: 100%; height: auto; position: absolute; left: 0; top: 0;}
+.toplocking.fixed {position: fixed; top: 42px;}
+.menutabs {width: auto; height: 44px; background: url("../images/borgrayb.png") repeat-x bottom #fff; background-size: 1px 1px; position: relative;}
+.menutabs-list {width: auto; height: 44px; margin-right: 44px;}
+.menutabs-list .swiper-slide {width: auto; height: 44px; margin-left: 15px;}
+.menutabs-list .swiper-slide:last-child {margin-right: 15px;}
+.menutabs-list .swiper-slide a {display: block; width: auto; height: 44px; line-height: 44px; text-align: center; font-size: 14px; color: #999999; position: relative;}
+.menutabs-list .swiper-slide a b {display: none; width: 14px; height: 2px; background: #ff7e00; border-radius: 2px; font-size: 0; line-height: 0; position: absolute; left: 50%; margin-left: -7px; bottom: 7px;}
+.menutabs-list .swiper-slide a.on {color: #333333; font-weight: bold;}
+.menutabs-list .swiper-slide a.on b {display: block;}
+
+.menutabs-all {width: 44px; height: 44px; position: absolute; right: 0; top: 0; background: url("../images/borgrayl.png") repeat-y; background-size: 1px 1px; box-shadow: 0px -1px 2px rgba(0, 0, 0, 0.1); z-index: 2;}
+.menutabs-all a {display: block; width: auto; height: 44px; background: url("../images/menutabs-all.png") no-repeat center; background-size: 20px 20px;}
+
+.topsort {width: auto; height: 36px; background: #fff; position: relative; box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.1);}
+.topsort-select {width: auto; height: 36px; float: left; padding-left: 15px;}
+.topsort-select a {display: block; width: auto; height: 36px; line-height: 36px; font-size: 12px; color: #999999; padding-right: 14px; position: relative;}
+.topsort-select a i {display: block; width: 7px; height: 5px; background: url("../images/sortarr.png") no-repeat; background-size: 100% 100%; transition: ease-in 0.08s , ease-out 0.16s; position: absolute; right: 0; top: 50%; margin-top: -3px;}
+.topsort-select a.on i {
+    transform: rotate(-180deg);
+    -ms-transform: rotate(-180deg);
+    -moz-transform: rotate(-180deg);
+    -webkit-transform: rotate(-180deg);
+    -o-transform: rotate(-180deg);
+}
+.topsort-list {width: 100%; height: auto; padding-bottom: 5px; position: absolute; left: 0; top: 100%; background: #fff; z-index: 2; box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.1); display: none;}
+.topsort-list ul li {width: auto; height: auto;}
+.topsort-list ul li a {display: block; width: auto; height: auto; padding: 5px 15px; font-size: 12px; color: #999;}
+.topsort-list ul li a.on {color: #e63333;}
+
+
+
+.topsort-filter {width: auto; height: 36px; position: absolute; right: 15px; top: 0;}
+.topsort-filter a {display: block; width: auto; height: 36px; line-height: 36px; font-size: 12px; color: #666; background: url("../images/goarr.png") no-repeat right center; background-size: 6px 10px; padding-right: 12px;}
+
+
+
+.opentags {width: auto; height: auto; position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: #fff; z-index: 9999; display: none;}
+.opentags .close {width: 42px; height: 42px; position: absolute; right: 0; top: 0; z-index: 2;}
+.opentags .close a {display: block; width: 42px; height: 42px; background: url("../images/openclose.png") no-repeat center; background-size: 20px 20px;}
+.opentags .title {width: 100%; height: 42px; background: url("../images/borgrayb.png") repeat-x bottom #fff; background-size: 1px 1px; text-align: center; line-height: 42px; font-size: 16px; color: #333; font-weight: bold; position: absolute; left: 0; top: 0;}
+.opentags .list {width: auto; height: auto; margin-top: 42px; font-size: 0; padding: 10px;}
+.opentags .list a {display: inline-block; width: auto; height: 36px; line-height: 34px; font-size: 14px; color: #666; border: 1px solid #ddd; border-radius: 20px; padding: 0 25px; margin: 5px;}
+
+
+.openwrap {width: auto; height: auto; position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 9998; background: rgba(0, 0, 0, 0.5); display: none;}
+.openfilter {width: 300px; height: auto; position: fixed; right: -100%; top: 0; bottom: 0; background: #fff; z-index: 9999; padding-bottom: 50px; display: none; opacity: 0;}
+
+.filterlist {width: auto; height: 100%; overflow: auto;}
+.filterlist .item {width: auto; height: auto;}
+.filterlist .item .title {width: auto; height: auto; font-size: 14px; color: #333333; font-weight: bold; padding: 15px;}
+.filterlist .item .list {width: auto; height: 114px; font-size: 0; padding-left: 15px; overflow: hidden;}
+.filterlist .item .list a {display: inline-block; width: 83px; height: 28px; line-height: 26px; font-size: 12px; color: #333333; background: #eeeeee; border: 1px solid #eeeeee; border-radius: 5px; text-align: center; margin-right: 10px; margin-bottom: 10px;}
+.filterlist .item .list a.on {border-color: #0787d1; color: #0787d1; background: #fff;}
+.filterlist .item .more {width: auto; height: auto;}
+.filterlist .item .more a {display: block; width: 20px; height: 10px; margin: 0 auto; background: url("../images/filter-showmore.png") no-repeat center; background-size: 10px 6px;}
+.filterlist .item .more a.on {
+    transform: rotate(-180deg);
+    -ms-transform: rotate(-180deg);
+    -moz-transform: rotate(-180deg);
+    -webkit-transform: rotate(-180deg);
+    -o-transform: rotate(-180deg);
+}
+
+.filterbtns {width: 100%; height: 50px; position: absolute; left: 0; bottom: 0; background: url("../images/borgrayt.png") repeat-x top #fff; background-size: 1px 1px;}
+.filterbtns ul li {width: 50%; height: 50px; float: left;}
+.filterbtns ul li a {display: block; width: auto; height: 50px; line-height: 50px; text-align: center; font-size: 15px; color: #333333;}
+.filterbtns ul li a.filter-submit {background: #0787d1; color: #fff;}
+
+
+.openshare {width: 100%; height: auto; background: #f3f3f3; position: fixed; left: 0; bottom: -100%; z-index: 9999; display: none; opacity: 0;}
+.openshare .list {width: auto; height: auto; background: #fff; padding: 20px 0; overflow: hidden;}
+.openshare .list ul li {width: 20%; height: auto; float: left;}
+.openshare .list ul li a {display: block; width: auto; height: auto;}
+.openshare .list ul li a span {display: block; width: auto; height: auto; margin: 0 auto; text-align: center; font-size: 0;}
+.openshare .list ul li a span.icon {width: 30px; height: 30px;}
+.openshare .list ul li a span.icon img {width: 30px; height: 30px;}
+.openshare .list ul li a span.text {font-size: 13px; color: #999999; padding-top: 10px;}
+.openshare .close {width: auto; height: auto; padding-top: 3px;}
+.openshare .close a {display: block; width: auto; height: 60px; line-height: 60px; text-align: center; font-size: 16px; color: #666666; background: #fff;}
+
+
+
+.openreply {width: 100%; height: auto; background: #fff; position: fixed; left: 0; bottom: 0; z-index: 9999; padding: 10px 50px 10px 10px; display: none;}
+.openreply a.close {width: 20px; height: 20px; position: absolute; right: 10px; top: 10px; z-index: 2; background: url("../images/openclose.png") no-repeat center; background-size: 14px 14px;}
+.openreply textarea {width: 100%; height: 100px; background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 5px; font-size: 14px; color: #333;}
+.openreply input.btn {display: block; width: 30px; height: 20px; line-height: 20px; font-size: 14px; color: #333; border: 0 none; position: absolute; right: 10px; bottom: 15px;}
+
+
+
+.opennotes {width: auto; height: auto; position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: 99999; background: #fff; display: none;}
+
+
+
+
+
+
+.openad {width: 300px; height: 420px; font-size: 0; line-height: 0; position: fixed; z-index: 9999; left: 50%; top: 50%; margin-left: -150px; margin-top: -227px; display: none;}
+.openad .img {width: 300px; height: 420px; position: absolute;}
+.openad .img img {width: 300px; height: 420px; border-radius: 5px;}
+.openad .close-ad {width: 36px; height: 36px; text-indent: -9999px; position: absolute; top: 5px; left: 50%; margin-left: 104px;}
+.openad .close {width: 36px; height: auto; position: absolute; left: 50%; margin-left: -18px; top: 100%;}
+.openad .close .line {width: 4px; height: 27px; background: url("../images/openad-line.png") no-repeat center; background-size: 1px auto; margin: 0 auto;}
+.openad .close .btn {width: 36px; height: 36px; margin: 0 auto;}
+.openad .close .btn a {display: block;}
+.openad .close .btn a img {width: 36px; height: 36px;}
+
+
+/* 我的客服 */
+.ecl-kf-con { padding: 18% 0;}
+.ecl-kf-con section { padding: 4% 0 7%; border-bottom: 1px solid #c9c9c9; text-align: center;}
+.ecl-kf-con section h3 { font-size: 1.1rem; text-align: center; padding-bottom: 3%;}
+.ecl-kf-con section span { display: block; font-size:0.85rem; color: #b1b1b1;  line-height: 1.5}
+.ecl-kf-con section img { width:13%; display: block; margin: 0 auto; margin-bottom: 3%;}
+.ecl-kf-con section p { width: 65%; margin: 0 auto; font-size:0.75rem; color: #b1b1b1; line-height: 1.5; margin-bottom: 2%; text-align: left;}
+.ecl-kf-con section a { color: #005bac; font-size:0.85rem;}
+
+.ecl-popkf { width: 18%; position: fixed;bottom: 15%;right: -7%; z-index: 9996;}
+.ecl-popkf a,.ecl-popkf img {width: 100%; display: block;}
+.ecl-popkf img.kf-ztu { position: absolute; top:0px; left:0;}
+
+.ecl-kftc {padding: 18% 0;}
+.ecl-kftc h5 { font-size: 1.3rem; text-align: center; padding-bottom: 3%;}
+.ecl-kftc h6 { font-size: 1rem; text-align: center; padding-bottom: 5%; color: #9a9a9a;}
+.ecl-kftc p {font-size: 0.75rem; color: #9a9a9a; text-align: center; line-height: 1.6}
+.ecl-kftc-ewm { width: 50%; display: block; margin:0 auto;}
+.ecl-kftc dl { margin:7%; width:86%; padding: 5%; height: auto; background: #fff; box-shadow: 1px 1px 26px 2px #ccc;}
+.ecl-kftc dl dt img { width: 13%; display: block; margin:0 auto 5%;}
+.ecl-kftc dl dd { text-align: center; padding-bottom: 7%; font-size:0.875rem;}
+.ecl-kftc-btm { width: 50%; display: block; margin:0 auto;}
+
+/*底部浮动层样式*/
+.lx-btm-box { width:100%; height: 113px; position:fixed; bottom:0; left:0; z-index:999; display:none}
+.lx-btm-img { width:100%; display: block}
+.lx-btm-close { width:30px; height:30px; display:block;position:absolute; top:0px; right:5%; text-indent:-9999px}
+@-webkit-keyframes fadeInUp {
+    from {
+        opacity: 0;
+        -webkit-transform: translate3d(0, 200%, 0);
+        transform: translate3d(0, 200%, 0);
+    }
+
+    to {
+        opacity: 1;
+        -webkit-transform: none;
+        transform: none;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        -webkit-transform: translate3d(0, 200%, 0);
+        transform: translate3d(0, 200%, 0);
+    }
+
+    to {
+        opacity: 1;
+        -webkit-transform: none;
+        transform: none;
+    }
+}
+
+.fadeInUp {
+    -webkit-animation-name: fadeInUp;
+    animation-name: fadeInUp;
+}
+
+/*底部弹出层动画*/
+.lx-btm-box.fadeInUp {animation-delay:0s; -webkitanimation-delay:0s; -webkit-animation-duration: 1s; animation-duration: 1s;}
+
+/*预约浮动层样式*/
+.pop-yy { width:100%; height: 100%; background: url("../images/tc_yy_bg.png") repeat;  position:fixed; bottom:0; left:0; z-index:999;}
+.pop-yy-con { width: 80%; height: auto; margin: 26% 10% 0; position: relative;}
+.pop-yy img { width:100%; display: block}
+.view-yy-btn {width:60%; height:3rem; display:block; position:absolute; top:17%; left:0; text-indent:-9999px}
+.close-yy-btn { width:36%; height:3rem; display:block; position:absolute; bottom:0; left:35%; text-indent:-9999px}
+.share-yy-btn { width:86%; height:3.5rem; display:block; position:absolute; bottom:20%; left:7%; text-indent:-9999px}
+.exit-yy-btn { width:40%; height:3rem; display:block; position:absolute; bottom:21%; left:9%; text-indent:-9999px}
+.think-yy-btn { width:40%; height:3rem; display:block; position:absolute; bottom:21%; left:53%; text-indent:-9999px}
+
+/*关注浮动层样式*/
+.pop-gz { width:100%; height: 100%; background: url("../images/tc_yy_bg.png") repeat;  position:fixed; bottom:0; left:0; z-index:999;}
+.pop-gz-con { width: 80%; height: auto; margin: 20% 10% 0; position: relative;}
+.pop-gz img { width:100%; display: block}
+.enter-gz-btn {width:80%; height:3rem; display:block; position:absolute; top:66%; left:10%; text-indent:-9999px;}
+.close-gz-btn { width:36%; height:3rem; display:block; position:absolute; bottom:0; left:35%; text-indent:-9999px}
+.exit-gz-btn { width:40%; height:3rem; display:block; position:absolute; bottom:25%; left:7%; text-indent:-9999px}
+.think-gz-btn { width:40%; height:3rem; display:block; position:absolute; bottom:25%; left:51%; text-indent:-9999px}
+
+/*收藏浮动层样式*/
+.pop-sc { width:100%; height: 100%; background: url("../images/tc_yy_bg.png") repeat;  position:fixed; bottom:0; left:0; z-index:999;}
+.pop-sc-con { width: 80%; height: auto; margin: 20% 10% 0; position: relative;}
+.pop-sc img { width:100%; display: block}
+.enter-sc-btn,.exit-sc-btn {width:80%; height:3rem; display:block; position:absolute; top:66%; left:10%; text-indent:-9999px;}
+.close-sc-btn { width:36%; height:3rem; display:block; position:absolute; bottom:0; left:35%; text-indent:-9999px}
