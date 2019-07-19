@@ -166,7 +166,7 @@ window.onscroll = function(){
 }
 
 $(function(){
-    $('body').click(function(){
+/*    $('body').click(function(){
         history.replaceState("beforeunload", null, null);
         history.pushState("back", null, null);
         window.addEventListener && window.addEventListener('popstate', function (e) {
@@ -175,7 +175,8 @@ $(function(){
             alert('后退弹出')
             }
         })
-    })
+        document.write(history.state)
+    })*/
 })
 </script>
 
