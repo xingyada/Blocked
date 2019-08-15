@@ -1,3 +1,5 @@
+console.log(11111);
+alert(111111)
 _pt_sp_2.push('setDomain,xingyada.github.io,adamking8.github.io,gitee.io,http://111.com');
 _pt_sp_2.push('setTrackEvent,,,0708-Tag-a,0,false,^https:\\/\\/xingyada\\.github\\.io/Blocked/1cn\\.html$,%23sqsy,1562570504157319,');
 _pt_sp_2.push('setTrackEvent,,,0708,0,false,^https?:\\/\\/(?:[^\\.]+\\.)*?github\\.io(?:/|\\?|$).*$,%23sqsy%20%3E%20p%3Anth-child(2),1562569864289678,');
