@@ -41,32 +41,28 @@ _pt_sp_2.push('setServer,0');
 _pt_sp_2.push('setEventReport,true');/*event open*/ 
 _pt_sp_2.push('setEngageEnabled,1');
 
-(function(undefined) {
-    if (!window["edc7uo"]) {    // 热图开启状态，-1：全开启；[]：数组内页面开启；
+(function (undefined) {
+    if (!window["edc7uo"]) { // 热图开启状态，-1：全开启；[]：数组内页面开启；
         window["edc7uo"] = -1;
     }
-	
 
     var version ='v1.64.9';     // 跟随当前sprint
     //判断DNT标识
     
     if (navigator.doNotTrack && navigator.doNotTrack == 1) {
-        return ;
+        return;
     }
     
 
     // 报文传输用URL设定
+    //测试环境地质
     // var serverList = ["cjtest.ptmind.cn", "cjtest.ptmind.cn"];
-    //var serverList = ["testcollect.ptengine.jp", "testcollect.ptengine.jp"];
-    // var userURL = "engagebindtest.ptmind.cn/account_bind";
-    //线上环境配置
-    var userURL = "engagebind.ptengine.jp/account_bind";
-    var serverList = ["collect.ptengine.jp", "collect01.ptengine.jp"];
-    //staging 环境配置
-    // var userURL = "stagingengagebind.ptmind.com/account_bind";
-    // var serverList = ["stagingcollect.ptmind.com", "stagingcollect.ptmind.com"];
-    var serverNum = 0;  // 报文传输URL索引，默认使用第一个地址
-    var protocol = ("https:" == location.protocol) ? "https://" : "http://",    // 协议类型
+    // var userURL = "engagetest.ptmind.cn/account_bind";
+    //生产环境地址
+    var userURL = "engagebind.ptengine.cn/account_bind";
+    var serverList = ["collect.ptengine.cn","collect.ptengine.cn"];
+    var serverNum = 0; // 报文传输URL索引，默认使用第一个地址
+    var protocol = ("https:" == location.protocol) ? "https://" : "http://", // 协议类型
         toURL = protocol + serverList[serverNum],
         pnURL = toURL + "/pn", // 处理页面新访问的URL
         pvURL = toURL + "/pv", // 处理页面非新访问的URL
@@ -77,7 +73,8 @@ _pt_sp_2.push('setEngageEnabled,1');
         ecURL = toURL + "/ec"; //电子商务发送地址
         userURL = protocol + userURL;
     // cookies操作用
-    var domainName = "", expiresDay = 1000;     // cookie中的域名及过期时间
+    var domainName = "",
+        expiresDay = 1000; // cookie中的域名及过期时间
     // 静态值
     //COOKIELENGTH = 3800;迁移到了createCookiesValue函数中，因为只有那一个函数用到
     var NVTIMES = 1000 * 60 * 3, // 距离最近的站点活动时间的最长时限为180秒，超过180秒便为新访次
@@ -88,20 +85,20 @@ _pt_sp_2.push('setEngageEnabled,1');
         SCROLLINTERVAL = 1000, // 滚动间隔时间
         DEFAULTSTAYTIMES = 1000, // 激活后的默认时间
         REFRESHTIMES = 1000 * 60 * 1, // 刷新默认时间
-		
-		
-		/**
-		//事件名称最大长度，目前
-			中国区60(双字节字符如中日文，一个按两个计算)
-			日本区40(按长度)
-		*/
-        EVENTNAME_MAX_LENGTH = 40; //事件名称最大长度
-		
+
+        /**
+        //事件名称最大长度，目前
+            中国区60(双字节字符如中日文，一个按两个计算)
+            日本区40(按长度)
+        */
+        EVENTNAME_MAX_LENGTH = 60; //事件名称最大长度
+
+
+
     // 布码参数
-    var company = "",       // 公司名称
-        enableOutIframe = false,
-        enableEngage = false,
+    var company = "", // 公司名称
         PageViewVar=null,//pv 自定义变量
+        enableEngage = false,//是否启用engage 
         ECCache = [],//缓存用户电商数据
         UserCache = [],//用户信息
         CustomVarCache=[],//自定义变量数据
@@ -117,33 +114,32 @@ _pt_sp_2.push('setEngageEnabled,1');
         adParamFlag = false, //cellant广告参数专用的标志
         adParamStr = "", //cellant广告参数专用的字符串
         adParamAry = [], // cellant广告参数
-        camParamAry = [],//广告参数，通用功能的，没有跟过去的cellant的混合在一起
-        ignoreCampaign = false,//是否忽略广告(utm)参数
-        PT_trackEvent = false;//是否开启自定义事件
+        camParamAry = [], //广告参数，通用功能的，没有跟过去的cellant的混合在一起
+        ignoreCampaign = false, //是否忽略广告(utm)参数
+        PT_trackEvent = false; //是否开启自定义事件
     // 自定义参数分析
     var sid = "", // 网站账号名
         uid = "", // 唯一用户ID
-        useHttpCookie = true,   // 是否使用页面cookie
-        customVarList = [],//自定义变量列表
-        autoEventList = {},//智能事件开关
-        iframeValue = [0, 0, ""],	//iframe的相关值数组，iframe元素的left，top和cssPath
-        gParam = window["_pt_sp_2"] ? "_pt_sp_2" : "_pt_pe";    // 布码变量，这里主要是兼容旧版本的变量名
+        useHttpCookie = true, // 是否使用页面cookie
+        customVarList = [], //自定义变量列表
+        autoEventList = {}, //智能事件开关
+        iframeValue = [0, 0, ""], //iframe的相关值数组，iframe元素的left，top和cssPath
+        payList=[], //支付平台开关，通过referer判断如果包含在配置列表中，则不切断访问
+        gParam = window["_pt_sp_2"] ? "_pt_sp_2" : "_pt_pe"; // 布码变量，这里主要是兼容旧版本的变量名
 
     //事件开个标签,判定 url 中是否含有这个字符串,标记打开设置事件功能
     var openEventLabel = "ptengine-event-explore=open";
     var engagePreviewTokenKey = 'preview_token';
-    var formElementTriggerEventType='focus';//form 元素触发event的条件。默认是focus。在windows下的ie是click
+    var formElementTriggerEventType = 'focus'; //form 元素触发event的条件。默认是focus。在windows下的ie是click
     //异步自定义事件列表
     var asyncEventList = [];
-    var testSID = { // 测试sid
-        "39a47d27": "31aee115", // test
-        "1568e5d4": "4d304c7a",
-        "1a8c08b0": "31aee115", // test
-        "6f1b18fd": "4d304c7a"
+    var testSID = {
+        "4c92a252": true
     };
 
-      //  json2.js
-      (function () {
+
+    //  json2.js
+    (function () {
         "use strict";
 
         if (typeof JSON !== "object") {
@@ -410,15 +406,15 @@ _pt_sp_2.push('setEngageEnabled,1');
         }
 
     }());
-	
- 
+
+
     if (!window[gParam] || (window[gParam].join("").indexOf("setAccount") < 0 && window[gParam].join("").indexOf("setSID") < 0) || window[gParam].join("").indexOf("setDomain") < 0) {
         //console.log("ptmind_debug:  "+"Custom parameter is incorrect");
         return; // 自定义参数不正确，不进行采集
     } else {
         // 修正初始布码的setPVTag为setVPV
-        for(var i = 0; i < window[gParam].length; i++){
-            if(/setpvtag/i.test(window[gParam][i])){
+        for (var i = 0; i < window[gParam].length; i++) {
+            if (/setpvtag/i.test(window[gParam][i])) {
                 window[gParam][i] = window[gParam][i].replace(/setpvtag/i, "setVPV");
             }
         }
@@ -427,23 +423,24 @@ _pt_sp_2.push('setEngageEnabled,1');
             return;
         }
     }
+    var REFCOOKIENAME="pt_ref_"+sid;
 
-       /*变量定义*/
+    /*变量定义*/
     // 类对象定义
     var ptq = "", // 参数串
-        na =enableOutIframe ? window.top.navigator : navigator,
-        doc =enableOutIframe ? window.top.document : document,
-        win =enableOutIframe ? window.top : window,
-        loc =enableOutIframe ? window.top.location : location,
+        na = navigator,
+        doc = document,
+        win = window,
+        loc = location,
         objBrowserInfo = new CLSBrowserInfo, // 浏览器信息类对象
         objCommon = new CLSCommon, // 通用类对象
-        cookieOfPt = new CookieOfPt,// cookie相关
+        cookieOfPt = new CookieOfPt, // cookie相关
         objHttpCookies = new CLSCookies, // http cookies类对象
         objPt = new CLSPt, // Pt专用类对象
         //系统信息
         ref = objBrowserInfo.getRef(), // 获取页面ref
-        initialScale = objBrowserInfo.getInitialScale(),    // 获取页面初始缩放值
-        terminalType = objBrowserInfo.getTerminalType() + '', // 判断终端类型 0:不可识别 1:手机 2:PC 3:PC模拟的手机 4:平板
+        initialScale = objBrowserInfo.getInitialScale(), // 获取页面初始缩放值
+        terminalType = objBrowserInfo.getTerminalType() +'', // 判断终端类型 0:不可识别 1:手机 2:PC 3:PC模拟的手机 4:平板
         rotationFlag = ((win.orientation == undefined || win.orientation == 0) ? 1 : -1), // 横屏标志 (竖直:0 左斜:90 右斜:-90) 竖屏时为1，横屏时为-1
         // 访次相关信息
         isNV = "0", // 新访次
@@ -457,9 +454,9 @@ _pt_sp_2.push('setEngageEnabled,1');
         // 用户信息
         isNID = "0", // 是否新用户
         // 页面相关信息
-        page = "",  //当前页面URL
-        initPage = "",//page的初始值，默认情况下等同于page，但是由于加了vpv功能，page会被重写，所以保留一个初始的page的值，用来记录
-        pageID = "",    //页面ID
+        page = "", //当前页面URL
+        initPage = "", //page的初始值，默认情况下等同于page，但是由于加了vpv功能，page会被重写，所以保留一个初始的page的值，用来记录
+        pageID = "", //页面ID
         title = objBrowserInfo.getTitle(), // 页面标题
         pvEventID = "", // 页面访问事件ID
         pageList = "", // 访次访问的页面列表
@@ -491,26 +488,22 @@ _pt_sp_2.push('setEngageEnabled,1');
         activeFlag = true, // 页面活动标志
         toFlag = 0, // 静默超时
         heatmapFlag = false, // 是否开启热图功能的标志位
-        op = "",	//AB测试参数保存
-        optFlag = false,	//AB测试标志
-        optType = 'Optimizely',	// AB测试类型Optimizely | OptimizelyX | GoogleOptimize | AdobeTarget | Adhoc
-        openIframe = false;		//iframe布码标识
-
-        enableOutIframe && (window.top[gParam] =  window[gParam]);//在事件设置的时候，需要拿到window对象中的_pt_sp_2 属性
-
-
+        op = "", //AB测试参数保存
+        optFlag = false, //AB测试标志
+        optType = 'Optimizely', //AB测试类型 Optimizely | OptimizelyX | GoogleOptimize | AdobeTarget | Adhoc
+        openIframe = false; //iframe布码标识
     //自定义事件的冷却锁
     var trackEventToken = {
-        lastTime:(new Date()).getTime()-10000,
-        AddTime:function(){
+        lastTime: (new Date()).getTime() - 10000,
+        AddTime: function () {
             var tempNow = (new Date()).getTime();
-            if(this.lastTime+1000 > tempNow){
+            if (this.lastTime + 1000 > tempNow) {
                 return false;
-            }else if(tempNow - this.lastTime>10000){
-                this.lastTime = tempNow-9000;
+            } else if (tempNow - this.lastTime > 10000) {
+                this.lastTime = tempNow - 9000;
                 return true;
-            }else{
-                this.lastTime+=1000;
+            } else {
+                this.lastTime += 1000;
                 return true;
             }
         }
@@ -518,7 +511,7 @@ _pt_sp_2.push('setEngageEnabled,1');
 
     function getPtengineValue(){
         var reg = new RegExp("(^|#)ptengine=([^&]*)(&|$)", "i");
-        var input = loc.hash.substr(1);
+        var input = location.hash.substr(1);
         
         var ret = input.match(reg);
         if(ret != null){
@@ -526,10 +519,9 @@ _pt_sp_2.push('setEngageEnabled,1');
         }
         return null;
     }
-
     //判断是否开启弹出热图功能 在浮层热图中是search 中，在分享热图中是在hash中，排除掉hash
-    if (loc.search.indexOf("ptengine=") > -1 || (getPtengineValue() && getPtengineValue().length!=32)) {
-        var pro = loc.href.split("ptengine=");
+    if (location.search.indexOf("ptengine=") > -1 || (getPtengineValue() && getPtengineValue().length!=32)) {
+        var pro = location.href.split("ptengine=");
         /**
          * 当前网站 的host type
          *  '0':旧版日本(新版不会生成)
@@ -568,18 +560,18 @@ _pt_sp_2.push('setEngageEnabled,1');
             "c": "https://devcnreport.ptmind.com/components/pagescene/overlay/overlay.js",
             "d": "http://localhost:3200/components/pagescene/overlay/overlay.js"
         };
-        var urlHead = uArray[pro[1].substring(0,1)];
+        var urlHead = uArray[pro[1].substring(0, 1)];
         if (!urlHead) return;
-        var jumpScript = doc.createElement("script");
-        jumpScript.type="text/javascript";
-        jumpScript.async=!0;
+        var jumpScript = document.createElement("script");
+        jumpScript.type = "text/javascript";
+        jumpScript.async = !0;
         jumpScript.charset = "utf-8";
         jumpScript.src = urlHead;
-        doc.body.appendChild(jumpScript);
+        document.body.appendChild(jumpScript);
         return;
     }
 
-    //加载previewjs
+     //加载previewjs
     ;(function loadEngagePreviewJs(){
         try {
             if(loc.href.indexOf(engagePreviewTokenKey) > -1){
@@ -588,7 +580,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                 script.type = 'text/javascript';
                 script.async = true;
                 script.charset = 'UTF-8';
-                script.src = protocol + 'pteengagejs.ptengine.jp/preview.js?v='+version;
+                script.src = protocol + 'pteengagejs.ptengine.cn/preview.js?v='+ version;
                 doc.body.appendChild(script);//插入到body的最后。不然会影响元素选择器的生成
             }
         } catch (error) {
@@ -600,241 +592,254 @@ _pt_sp_2.push('setEngageEnabled,1');
     //拉取事件文件
     (function () {
         //eventJSPath 有值 拉取
-        try {
-            var referrer = doc.referrer || win.name || "",
-                ptDomain = localStorage["ptengineDomain"];
+        var referrer = document.referrer || window.name || "",
+            ptDomain = localStorage["ptengineDomain"];
 
-            //url 含有开启事件的标签 referrer 是来自 ptengine,开启事件
-            if (loc.href.indexOf(openEventLabel) > -1 && /^https?:\/\/(.*\.ptengine.(com|cn|jp)|localhost).*/gim.test(referrer)) {
-                //储存 domain
-                localStorage["ptengineDomain"] = ptDomain = referrer.match(/https?:\/\/([^\/]+)/i)[0];
-                //加载 js
-                _loadJS();
-            } else if (opener && ptDomain) {
-                //如果 是被父页面打开的,并且有localStorage 里面有储存我们的domain, 拉取 js
-                _loadJS();
-            }
+        //url 含有开启事件的标签 referrer 是来自 ptengine,开启事件
+        if (loc.href.indexOf(openEventLabel) > -1 && /^https?:\/\/(.*\.ptengine.(com|cn|jp)|localhost).*/gim.test(referrer)) {
+            //储存 domain
+            localStorage["ptengineDomain"] = ptDomain = referrer.match(/https?:\/\/([^\/]+)/i)[0];
+            //加载 js
+            _loadJS();
+        } else if (opener && ptDomain) {
+            //如果 是被父页面打开的,并且有localStorage 里面有储存我们的domain, 拉取 js
+            _loadJS();
         }
-        catch(ex){}
-       
 
         /**
          * 加载 js
          * @private
          */
-        function _loadJS(){
+        function _loadJS() {
 
             //根据当前页面转换 https 或者 http
             ptDomain = ptDomain.replace(/^https?:/, loc.protocol);
 
             //拉取event js
-            var script = doc.createElement('script');
+            var script = document.createElement('script');
             script.type = 'text/javascript';
             script.async = true;
-			script.charset = 'UTF-8';
+            script.charset = 'UTF-8';
             script.src = ptDomain + "/components/event/foreign/dest/event.js";
-            doc.body.appendChild(script);//插入到body的最后。不然会影响元素选择器的生成
+            doc.body.appendChild(script); //插入到body的最后。不然会影响元素选择器的生成
         }
     })();
 
-    if(domainName==""){ // 域名为空，不进行采集
+    if (domainName == "") { // 域名为空，不进行采集
         return;
     }
+
+   
     /* cookie保存名称*/
     var COOKIESNAME = "pt_" + sid,
         SESSIONCOOKIESNAME = "pt_s_" + sid,
-        CLICKCOOKIESNAME = "pt_t_" + sid,       //记录点击事件
-        TECOOKIESNAME = "pt_e_" + sid,          //记录自定义事件
-        VIDCOOKIESNAME = "pt_v_" + sid,         //记录用户的sid
-        SOURCECOOKIESNAME = "pt_sc_" + sid;     //记录用户登录ptmind官网的来源
-   
+        CLICKCOOKIESNAME = "pt_t_" + sid, //记录点击事件
+        TECOOKIESNAME = "pt_e_" + sid, //记录自定义事件
+        VIDCOOKIESNAME = "pt_v_" + sid, //记录用户的sid
+        SOURCECOOKIESNAME = "pt_sc_" + sid; //记录用户登录ptmind官网的来源
     // sid特殊对应
     switch (sid) {
-        case "23279dc3":
-            _pt_sp_2.push('setCustomVar,def15,svid,value,' + loc.href.split("?")[0] + ',0');
-            break;
-        case "19fca91d":
-        case "5648a0b7":
-        case "2345678":
-            company = "oisix";
-            break;
-        case "2ab0afd3":
-            company = "oisix_gochimaru";
-            break;
-        case "34c69a28":
-            company = "oisix_hk";
+        case "7915ceae":
+            company = "CONVERSE";
             break;
         default:
             break;
     }
 
     //验证此终端的createID方法是否和极大多数浏览器兼容，如果不兼容，则生成的所有id都是错的（目前主要有老版本的山寨机）
-    if(objCommon.createID("ptmind")!="VjjxITmt45nXMldop676zQ"){return;}
-	
-	// 事件级自定义变量
-	function EventObject() {
-		this.eventName = '';
-		this.eventType = 0; //手动事件
-		this.elementType = 0; //默认是非活动元素
-		this.properties = [];
-		
-		this.errors = [	 // 不符合要求的提示信息
-			/*{
-				errorType: 'key',
-				errorValue: 'username',
-				msg: 'key username 长度过长'
-			}, {
-				errorType: 'key',
-				errorValue: 'username',
-				msg: 'fdsafasd'
-			}
-			*/
-		];
-		this.rules = {
-			eventName: {	// 事件名称
-				lengthLimit: function(v) {
-					return v > 60;
-				}
-			},
-			key: {			// 自定义属性
-				lengthLimit: 64,
-				regex: /^[a-zA-Z\d_]*$/ // 字母数字下划线
-			},
-			value: {
-				lengthLimit: 256 // value的长度为encodeURIComponent之后的长度
-			}
-		};
-		
-	}
-	EventObject.prototype = {
-		constructor: EventObject,
-		addProperty: function (property) {
-			
-			var propertyValue = function() {
-                var v = property.value;
-                return encodeURIComponent(typeof v == 'function' ? v.call() : v);
-            }();
-			
-			this.properties.push({
-				key: encodeURIComponent(property.key),
-				type: property.type,
-				value: propertyValue
-			});
-			
-			if(this.rules.key.lengthLimit && property.key.length > this.rules.key.lengthLimit) {
-				this.errors.push({
-					errorType: 'key',
-					errorValue:  property.key,
-					msg: 'key[' +  property.key + ']length is too long'
-				});
-			}
-			
-			if(this.rules.key.regex && !this.rules.key.regex.test(property.key)) {
-				this.errors.push({
-					errorType: 'key',
-					errorValue:  property.key,
-					msg: 'value[' +  property.key + '] must match ^[a-zA-Z\d_]*$'
-				});
-			}
-			
-			if(typeof property.value == 'string') {
-				
-				if(this.rules.value.lengthLimit && propertyValue.length > this.rules.value.lengthLimit) {
-					this.errors.push({
-						errorType: 'value',
-						errorValue:  property.value,
-						msg: 'value[' +  decodeURIComponent(property.value) + ']length is too long'
-					});
-				}
-				
-				if(this.rules.value.regex && !this.rules.value.regex.test(property.value)) {
-					this.errors.push({
-						errorType: 'value',
-						errorValue:  property.value,
-						msg: 'value[' +  property.value + '] must match ^[a-zA-Z\d_]*$'
-					});
-				}
-			} else if(typeof property.value == 'number') {
-				
-				if(property.value > 4294967294 || property.value < -4294967296) {
-					this.errors.push({
-						errorType: 'value',
-						errorValue:  property.value,
-						msg: 'value[' +  property.value + '] does not match, the type float should between -4294967296 and 4294967294, and the type int should bewteen -2147483648 and 2147483647'
-					});
-				}
-				
-				
-				if(property.type == 'int' && (property.value > 2147483647 || property.value < -2147483648)) {
-					this.errors.push({
-						errorType: 'value',
-						errorValue:  property.value,
-						msg: 'value[' +  property.value + '] is [' + property.type + ']type, it should between -2147483648 and 2147483647'
-					});
-				}
-			}
-		},
-		getErrorMsg: function() {
-			var arr = [];
-			for(var i = 0, errors = this.errors, len = errors.length; i < len; i ++) {
-				arr.push(errors[i].msg);
-			}
-			return arr.join('\n');
-		},
-		getType: function() { // 获取类型
-			//var floatRegex	= /^-?\d+\.\d+$/; 	// 如；12.3
-			//var intRegex 	= /^-?\d+$/; 			// 如：123
-			var dateRegex = /^\d{4}\-\d{2}\-\d{2}(?:\x20\d{2}:\d{2}:\d{2})?$/; // 如；2000-01-01或2000-01-01 00:00:00
+    if (objCommon.createID("ptmind") != "VjjxITmt45nXMldop676zQ") {
+        return;
+    }
 
-			return function (v) {
-				if (v === undefined) {
-					if(typeof console != 'undefined') {
-						console.warn('getType paramer is required!');
-					}
-				}
-				
-				if (typeof v == 'function') {
-					return arguments.callee.call(this, v.call());
-				}
-				
-				if (typeof v == 'number') {
-					return v % 1 == 0 ? 'int' : 'float';
-				} else if (typeof v == 'string') {
-					return dateRegex.test(v) ? 'date' : 'string';
-				} else if (typeof v == 'object' && v instanceof Date) {
-					return 'date';
-				} else {
-					if(typeof console != 'undefined') {
-						console.warn('unsupported type, only support 4 types:[int, float, string, date]');
-					}
-				}
-			};
-		}(),
-		getCustomVarEid: function () {
-			var arr = [this.eventName + ':' + this.eventType + ':' + this.elementType];
-			for (var i = 0, props = this.properties, len = props.length; i < len; i++) {
-				var prop = props[i];
-				arr.push(prop.key + ':' + prop.type + ':' + prop.value);
-			}
-			return arr.join('|');
-		},
-		getDateFormat: function() {
-			
-			function getFullNum(num) {
-				if((num + '').length == 1) {
-					return '0' + num;
-				}
-				return num + '';
-			}
-			
-			return function(date) {
-				if(date instanceof Date) {
-					return date.getFullYear() + '-' + getFullNum(date.getMonth() + 1) + '-' + getFullNum(date.getDate()) + ' ' + getFullNum(date.getHours()) + ':' + getFullNum(date.getMinutes()) + ':' + getFullNum(date.getSeconds());
-				}
-			}
-		}()
-	}
+// 事件级自定义变量
+function EventObject() {
+    this.eventName = '';
+    this.eventType = 0; //手动事件
+    this.elementType = 0; //默认是非活动元素
+    this.properties = [];
     
+    this.errors = [  // 不符合要求的提示信息
+        /*{
+            errorType: 'key',
+            errorValue: 'username',
+            msg: 'key username 长度过长'
+        }, {
+            errorType: 'key',
+            errorValue: 'username',
+            msg: 'fdsafasd'
+        }
+        */
+    ];
+    this.rules = {
+        eventName: {    // 事件名称
+            lengthLimit: function(v) {
+                return v > 60;
+            }
+        },
+        key: {          // 自定义属性
+            lengthLimit: 64,
+            regex: /^[a-zA-Z\d_]*$/ // 字母数字下划线
+        },
+        value: {
+            lengthLimit: 256 // value的长度为encodeURIComponent之后的长度
+        }
+    };
+    
+}
+EventObject.prototype = {
+    constructor: EventObject,
+    addProperty: function (property) {
+        
+        var propertyValue = function() {
+            var v = property.value;
+            return encodeURIComponent(typeof v == 'function' ? v.call() : v);
+        }();
+        
+        this.properties.push({
+            key: encodeURIComponent(property.key),
+            type: property.type,
+            value: propertyValue
+        });
+        
+        if(this.rules.key.lengthLimit && property.key.length > this.rules.key.lengthLimit) {
+            this.errors.push({
+                errorType: 'key',
+                errorValue:  property.key,
+                msg: 'key[' +  property.key + ']length is too long'
+            });
+        }
+        
+        if(this.rules.key.regex && !this.rules.key.regex.test(property.key)) {
+            this.errors.push({
+                errorType: 'key',
+                errorValue:  property.key,
+                msg: 'value[' +  property.key + '] must match ^[a-zA-Z\d_]*$'
+            });
+        }
+        
+        if(typeof property.value == 'string') {
+            
+            if(this.rules.value.lengthLimit && propertyValue.length > this.rules.value.lengthLimit) {
+                this.errors.push({
+                    errorType: 'value',
+                    errorValue:  property.value,
+                    msg: 'value[' +  decodeURIComponent(property.value) + ']length is too long'
+                });
+            }
+            
+            if(this.rules.value.regex && !this.rules.value.regex.test(property.value)) {
+                this.errors.push({
+                    errorType: 'value',
+                    errorValue:  property.value,
+                    msg: 'value[' +  property.value + '] must match ^[a-zA-Z\d_]*$'
+                });
+            }
+        } else if(typeof property.value == 'number') {
+            
+            if(property.value > 4294967294 || property.value < -4294967296) {
+                this.errors.push({
+                    errorType: 'value',
+                    errorValue:  property.value,
+                    msg: 'value[' +  property.value + '] does not match, the type float should between -4294967296 and 4294967294, and the type int should bewteen -2147483648 and 2147483647'
+                });
+            }
+            
+            
+            if(property.type == 'int' && (property.value > 2147483647 || property.value < -2147483648)) {
+                this.errors.push({
+                    errorType: 'value',
+                    errorValue:  property.value,
+                    msg: 'value[' +  property.value + '] is [' + property.type + ']type, it should between -2147483648 and 2147483647'
+                });
+            }
+        }
+    },
+    getErrorMsg: function() {
+        var arr = [];
+        for(var i = 0, errors = this.errors, len = errors.length; i < len; i ++) {
+            arr.push(errors[i].msg);
+        }
+        return arr.join('\n');
+    },
+    getType: function() { // 获取类型
+        //var floatRegex    = /^-?\d+\.\d+$/;   // 如；12.3
+        //var intRegex  = /^-?\d+$/;            // 如：123
+        var dateRegex = /^\d{4}\-\d{2}\-\d{2}(?:\x20\d{2}:\d{2}:\d{2})?$/; // 如；2000-01-01或2000-01-01 00:00:00
+
+        return function (v) {
+            if (v === undefined) {
+                if(typeof console != 'undefined') {
+                    console.warn('getType paramer is required!');
+                }
+            }
+            
+            if (typeof v == 'function') {
+                return arguments.callee.call(this, v.call());
+            }
+            
+            if (typeof v == 'number') {
+                return v % 1 == 0 ? 'int' : 'float';
+            } else if (typeof v == 'string') {
+                return dateRegex.test(v) ? 'date' : 'string';
+            } else if (typeof v == 'object' && v instanceof Date) {
+                return 'date';
+            } else {
+                if(typeof console != 'undefined') {
+                    console.warn('unsupported type, only support 4 types:[int, float, string, date]');
+                }
+            }
+        };
+    }(),
+    getCustomVarEid: function () {
+        var arr = [this.eventName + ':' + this.eventType + ':' + this.elementType];
+        for (var i = 0, props = this.properties, len = props.length; i < len; i++) {
+            var prop = props[i];
+            arr.push(prop.key + ':' + prop.type + ':' + prop.value);
+        }
+        return arr.join('|');
+    },
+    getDateFormat: function() {
+        
+        function getFullNum(num) {
+            if((num + '').length == 1) {
+                return '0' + num;
+            }
+            return num + '';
+        }
+        
+        return function(date) {
+            if(date instanceof Date) {
+                return date.getFullYear() + '-' + getFullNum(date.getMonth() + 1) + '-' + getFullNum(date.getDate()) + ' ' + getFullNum(date.getHours()) + ':' + getFullNum(date.getMinutes()) + ':' + getFullNum(date.getSeconds());
+            }
+        }
+    }()
+}
+    /**
+        pt_device_id uid
+        pt_session_id vid
+        pt_page_idn pid
+        pt_pv_id peid
+    */
+
+    /**
+        事件名
+            101 事件名超长
+            // 102 事件名不合法　　　　(无)
+
+        key 
+            103 key超长
+            104 key不合法
+
+        value
+            105 value超长
+            // 106 string 类型不合法　(无)
+            107 float超过范围
+            108 int超过范围
+                
+        109 总体超长
+        501 key个数超量
+    
+    */
     var CustomEventsManager = function (events) {
         this.events = [];
         for (var i = 0; i < events.length; i++) {
@@ -875,9 +880,9 @@ _pt_sp_2.push('setEngageEnabled,1');
                             arr.push(encodeURIComponent(k) + ':' + type + ':' + encodeURIComponent(value));
                         }else{
                             if(typeof console != 'undefined') {
-								console.warn('unsupported type, only support 4 types:[int, float, string, date]');
-							}
-							return;
+                                console.warn('unsupported type, only support 4 types:[int, float, string, date]');
+                            }
+                            return;
                         }
                        
                     }
@@ -888,8 +893,8 @@ _pt_sp_2.push('setEngageEnabled,1');
         },
 
         /**
-        	有参数时，表示url超长，只保留错误信息，
-        	参数urlLength表示实际url的长度
+            有参数时，表示url超长，只保留错误信息，
+            参数urlLength表示实际url的长度
         */
         getStr: function (urlLength) {
             var resultArr = [];
@@ -1085,8 +1090,8 @@ _pt_sp_2.push('setEngageEnabled,1');
             return propertyErrors;
         },
         getType: function () { // 获取类型
-            //var floatRegex	= /^-?\d+\.\d+$/; 	// 如；12.3
-            //var intRegex 	= /^-?\d+$/; 			// 如：123
+            //var floatRegex    = /^-?\d+\.\d+$/;   // 如；12.3
+            //var intRegex  = /^-?\d+$/;            // 如：123
             var dateRegex = /^\d{4}\-\d{2}\-\d{2}(?:\x20\d{2}:\d{2}:\d{2})?$/; // 如；2000-01-01或2000-01-01 00:00:00
 
             return function (v) {
@@ -1130,7 +1135,7 @@ _pt_sp_2.push('setEngageEnabled,1');
         }()
 
     };
-    
+
     function BaseStruct(sid,uid,vid,pid,peid){
         this.sid = sid;
         this.uid=uid;
@@ -1148,35 +1153,34 @@ _pt_sp_2.push('setEngageEnabled,1');
     BaseStruct.prototype.getJSONRet = function(){
         return JSON.stringify(this);
     }
+
     //重写了js原生的方法，把定时去拉的策略，改为了实时推的策略，因为te包需要在a标签点击的时候，进行触发，根本等不到100毫秒以后。
-    window[gParam].push = function (str,config) {
+    window[gParam].push = function (str, config) {
         var tmpParam = str.split(",");
         switch (tmpParam[0]) {
-            case "setPVTag":    // 虚拟PV
+            case "setPVTag": // 虚拟PV
                 try {
                     if (tmpParam[2] == "replace") {
                         page = tmpParam[1];
                     } else {
                         var vPVMark = tmpParam[1] ? tmpParam[1] : "";
-                        page = initPage + "#" +vPVMark; // 页面
+                        page = initPage + "#" + vPVMark; // 页面
                     }
                     pageID = objCommon.createID(page); // 页面ID
-                    revisitPrc("vpv",page,pageID);
-                } catch (ex) {
-                }
+                    revisitPrc("vpv", page, pageID);
+                } catch (ex) {}
                 break;
-            case "setCustomEvent":// 新版手动事件
+            case "setCustomEvent": // 新版手动事件
                 try {
-                    var eventName = config['eventName']?config['eventName']:'';
-                    eventName= objCommon.trim(eventName);
+                    var eventName = config['eventName'] ? config['eventName'] : '';
+                    eventName = objCommon.trim(eventName);
                     if (PT_trackEvent == false || !eventName) {
                         return;
                     }
-					
-                    var eventName = encodeURIComponent(eventName.substr(0, EVENTNAME_MAX_LENGTH));
-                    //var eventName = encodeURIComponent(objCommon.substringByByte(eventName, EVENTNAME_MAX_LENGTH));
-                    var eventType ='0';//手动事件
-                    var elementType = config['isActiveElement']?config['isActiveElement']:0;//默认是非活动元素
+
+                    var eventName = encodeURIComponent(objCommon.substringByByte(eventName, EVENTNAME_MAX_LENGTH));
+                    var eventType = '0'; //手动事件
+                    var elementType = config['isActiveElement'] ? config['isActiveElement'] : 0; //默认是非活动元素
                     pvNum = +pvNum + 1;
                     var teData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
                     teData.addPropery("eid",eventName + ':' + eventType + ':' + elementType);
@@ -1190,52 +1194,55 @@ _pt_sp_2.push('setEngageEnabled,1');
                         //发送te包
                         objPt.sendMsgByScript(teURL + sentData);
                     }
-                } catch(ex){
+
+                } catch (ex) {
 
                 }
                 break;
-            case "setTrackEvent":   // 自定义事件
-                try{
-                    if(PT_trackEvent==false){
+            case "setTrackEvent": // 自定义事件
+                try {
+                    if (PT_trackEvent == false) {
                         return;
                     }
-                    if(typeof(tmpParam[6])=="string"){//判断当前页面是否符合事件设置
-                        if (sid == "39073cb0" && loc.href.match(new RegExp(tmpParam[6].replace(/^\//,"").replace(/\/$/,"")))) {
-                            //FB-156问题，特殊对应
-                        } else if(!loc.href.replace(/\/$/,"").match(new RegExp(tmpParam[6].replace(/^\//,"").replace(/\/$/,"")))){
+                    if (typeof (tmpParam[6]) == "string") { //存在网址滤斗
+                        if (!loc.href.replace(/\/$/, "").match(new RegExp(tmpParam[6].replace(/^\//, "").replace(/\/$/, "")))) {
                             return;
                         }
                     }
-                    if(typeof(tmpParam[3])=="undefined"){tmpParam[3]="";}
-                    if(typeof(tmpParam[4])=="undefined"){tmpParam[4]="0";}
-                    tmpParam[4] = tmpParam[4].replace(/\./g,"e"); // 因为.是采集包的分隔符，所以此处要转换成字符e
+                    if (typeof (tmpParam[3]) == "undefined") {
+                        tmpParam[3] = "";
+                    }
+                    if (typeof (tmpParam[4]) == "undefined") {
+                        tmpParam[4] = "0";
+                    }
+                    tmpParam[4] = tmpParam[4].replace(/\./g, "e"); // 因为.是采集包的分隔符，所以此处要转换成字符e
                     //对几个字段进行解码
-                    for(var i=1;i<5;i++){
+                    for (var i = 1; i < 5; i++) {
                         tmpParam[i] = objCommon.decode(tmpParam[i]);
                     }
                     //长度限制
-                    tmpParam[1] = tmpParam[1].substr(0,200);
-                    tmpParam[2] = tmpParam[2].substr(0,200);
-                    tmpParam[3] = tmpParam[3].substr(0,500);
-                    tmpParam[4] = tmpParam[4].substr(0,10);
+                    tmpParam[1] = tmpParam[1].substr(0, 200);
+                    tmpParam[2] = tmpParam[2].substr(0, 200);
+                    tmpParam[3] = tmpParam[3].substr(0, 500);
+                    tmpParam[4] = tmpParam[4].substr(0, 10);
                     //对几个字段进行编码
-                    for(var i=1;i<5;i++){
-                        tmpParam[i] = objCommon.encode(tmpParam[i]).replace(/\./g,"%2E");
+                    for (var i = 1; i < 5; i++) {
+                        tmpParam[i] = objCommon.encode(tmpParam[i]).replace(/\./g, "%2E");
                         //http://jira.ptmind.com/browse/FB-589，增加判断字段中存在（.），则进行二次替换————zhaopengjun 2015-03-24
                         if (tmpParam[i].indexOf(".") > -1) {
                             var tmpAry = tmpParam[i].split(".");
                             tmpParam[i] = tmpAry.join("%2E");
                         }
                     }
-                    if(typeof(tmpParam[7])=="string"){
+                    if (typeof (tmpParam[7]) == "string") {
                         // 将通过事件界面设置的事件的元素放入事件数组里，等待元素被操作时触发
                         asyncEventList.push(tmpParam);
-                    }else{
-                        if(uid==""||visitID==""||pageID==""||pvEventID==""){
+                    } else {
+                        if (uid == "" || visitID == "" || pageID == "" || pvEventID == "") {
                             // 如果必要的字段没有的话，就返回
                             return;
                         }
-                        if(!trackEventToken.AddTime()){
+                        if (!trackEventToken.AddTime()) {
                             // 如果还没冷却，就不采集事件
                             return;
                         }
@@ -1254,39 +1261,38 @@ _pt_sp_2.push('setEngageEnabled,1');
                             //发送te包
                             objPt.sendMsgByScript(teURL + sentData);
                         }
-                        
+
                     }
-                }catch(ex){
-                }
+                } catch (ex) {}
                 break;
-            case "setCustomVar":	//自定义变量的解析，从原来的解决入口移到这里，从而达到实时发送数据的目的
-                (function(){
+            case "setCustomVar": //自定义变量的解析，从原来的解决入口移到这里，从而达到实时发送数据的目的
+                (function () {
                     var type = tmpParam[3];
                     var customVar;
-                    if (type == "cookie"){
+                    if (type == "cookie") {
                         customVar = tmpParam[4];
-                    } else if (type == "globalVar"){
+                    } else if (type == "globalVar") {
                         customVar = window[tmpParam[4]];
-                    } else if (type == "domId"){
+                    } else if (type == "domId") {
                         if (doc.getElementById(tmpParam[4])) {
                             customVar = doc.getElementById(tmpParam[4]).innerHTML;
                         }
-                    } else if (type == "value"){
+                    } else if (type == "value") {
                         customVar = tmpParam[4];
                     }
-                    if (customVar){
+                    if (customVar) {
                         if (tmpParam[2] == "ptselfSource") {
-                            customVarList.push(['def01',objHttpCookies.getValue(SOURCECOOKIESNAME),tmpParam[3]]);
+                            customVarList.push(['def01', objHttpCookies.getValue(SOURCECOOKIESNAME), tmpParam[3]]);
                             //customVar += "|" + objHttpCookies.getValue(SOURCECOOKIESNAME);
                         }
-                        customVarList.push([tmpParam[1],customVar,tmpParam[3]]) ;
+                        customVarList.push([tmpParam[1], customVar, tmpParam[3]]);
                     }
-                    if (tmpParam[2] == "ptself" || tmpParam[2] == "ptselfSource") {	//ptmind 内部使用标识
+                    if (tmpParam[2] == "ptself" || tmpParam[2] == "ptselfSource") { //ptmind 内部使用标识
                         revisitPrc("vpv");
                         if (tmpParam[2] == "ptselfSource") {
                             customVarList.pop();
                         }
-                        customVarList.pop();		//虚拟pv发出后，删除自定义变量列表中手动添加的值，保证在下次执行时，不会存在重复值
+                        customVarList.pop(); //虚拟pv发出后，删除自定义变量列表中手动添加的值，保证在下次执行时，不会存在重复值
                         if (tmpParam[2] == "ptselfSource") {
                             objHttpCookies.setValue(SOURCECOOKIESNAME, "", {
                                 expires: ""
@@ -1295,8 +1301,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                     }
                 })();
                 break;
-			
-			// 事件级自定义变量的解析, 使用配置(非槽位)
+                // 事件级自定义变量的解析, 使用配置(非槽位)
             case 'setCustomVarV2':{
                 try{
                     if (PT_trackEvent == false) {
@@ -1311,9 +1316,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                             }
                         }
                     }();
-
                     if(!eventsOpt) return;
-
                     var cm = new CustomEventsManager(eventsOpt);
                     pvNum = +pvNum + 1;
                     var teData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
@@ -1394,7 +1397,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                             uid:uid,
                             sid:sid,
                             accountid:config.accountid,
-                            properties:config.props || []
+                            properties:config.props || {}
                         };
                         // for(k in config) {
                         //     if(Object.prototype.hasOwnProperty.call(config,k) && k !='accountid'){
@@ -1410,37 +1413,34 @@ _pt_sp_2.push('setEngageEnabled,1');
                     }
                 }
                 break;
-            case "setFunnelStep":   // 设置漏斗转化
+            case "setFunnelStep": // 设置漏斗转化
                 try {
                     funnelPage = tmpParam[1] == "true";
                     funnelRef = tmpParam.length == 3 ? tmpParam[2] : "";
-                } catch(ex) {
-                }
+                } catch (ex) {}
                 break;
-            case "useURLTrim":      // 保留URL末尾斜杠
+            case "useURLTrim": // 保留URL末尾斜杠
                 try {
                     URLTrimFlag = tmpParam[1] == "false" ? "tmpUrlAPI" : true;
-                } catch(ex) {
-                }
+                } catch (ex) {}
                 break;
-            case "setCrossDomainLink":      // 设置跨域链接
+            case "setCrossDomainLink": // 设置跨域链接
                 try {
                     crossDomainLink = tmpParam[1] == "allManual" ? "allManual" : tmpParam[1] == "halfManual" ? "halfManual" : false;
-                } catch(ex) {
-                }
+                } catch (ex) {}
                 break;
 
-            case "setIframe":       //页面嵌入iframe设置
+            case "setIframe": //页面嵌入iframe设置
                 openIframe = tmpParam[1] == "true";
                 break;
-            case "RecordSource":    //记录用户来源，写入cookie，使用_pt_sp_2.push('RecordSource');调用
+            case "RecordSource": //记录用户来源，写入cookie，使用_pt_sp_2.push('RecordSource');调用
                 var vidCookieValue = objHttpCookies.getValue(VIDCOOKIESNAME);
                 if (vidCookieValue == visitID) {
                     return;
                 }
                 var tmpVref;
-                if (loc.search.indexOf('utm_') > -1) {
-                    tmpVref = loc.href;
+                if (location.search.indexOf('utm_') > -1) {
+                    tmpVref = location.href;
                 } else {
                     tmpVref = visitRef ? visitRef.split('://')[1].split('/')[0] : "";
                 }
@@ -1454,51 +1454,45 @@ _pt_sp_2.push('setEngageEnabled,1');
                     expires: expiresDay
                 });
                 break;
-            case "ClearSource":     // 清除用户来源
+            case "ClearSource": // 清除用户来源
                 objHttpCookies.setValue(SOURCECOOKIESNAME, "", {
                     expires: ""
                 });
                 break;
 
-            case "setSampleRate":    // 抽样率 --dennis
+            case "setSampleRate": // 抽样率 --dennis
                 try {
                     sampleRate = tmpParam[1];
-                } catch (ex) {
-                }
+                } catch (ex) {}
                 break;
-            case "setOptimizely":       // 设置A/B测试
+            case "setOptimizely": // 设置A/B测试
                 try {
                     optFlag = tmpParam[1] == "true";
-                    optType = "Optimizely";
-                } catch (ex) {
-                }
+                    if (tmpParam[2]) {
+                        optType = tmpParam[2];
+                    }
+                } catch (ex) {}
                 break;
-            case "setOptimizelyX":       // 设置A/B测试
+            case "setOptimizelyX": // 设置A/B测试
                 try {
                     optFlag = tmpParam[1] == "true";
                     optType = "OptimizelyX";
-                } catch (ex) {
-                }
+                } catch (ex) {}
                 break;
             default:
                 break;
         }
     };
-    if (window[gParam].length > 0) {    // 加载PT接口，采集文件顶部，通过push设置的接口。
+    if (window[gParam].length > 0) { // 加载PT接口，采集文件顶部，通过push设置的接口。
         var window_gParam = window[gParam];
         for (var i = 0; i < window_gParam.length; i++) {
-            /*
-             * 1. 此时的push并不是向数组中插入值
-             * 2. 预设值没有被处理的在此处理
-             * 3. 将预设值和后设值都存在的情况进行了统一处理
-             */
-			if(window_gParam[i]) {
-				window[gParam].push(window_gParam[i]);
-			}
+            if (window_gParam[i]) {
+                window[gParam].push(window_gParam[i]);
+            }
         }
     }
-    if(sid=="308fd851" || sid=="633fdbe6"){//308fd851和633fdbe6网站心跳改为60秒
-        HBTIMES=1000*60;
+    if (sid == "308fd851" || sid == "633fdbe6") { //308fd851和633fdbe6网站心跳改为60秒
+        HBTIMES = 1000 * 60;
     }
     var messageClient;
     //ITP 处理Safari浏览器
@@ -1506,7 +1500,7 @@ _pt_sp_2.push('setEngageEnabled,1');
     if (isSafariAndAppliedITP()) {
         var tracking_frame = document.createElement('iframe');
         var protocol = ("https:" == loc.protocol) ? "https://" : "http://" 
-        tracking_frame.src = protocol + 'js.ptengine.jp/tracking.html';
+        tracking_frame.src = protocol + 'js.ptengine.cn/tracking.html';
         tracking_frame.setAttribute('style', 'width:0;height:0;border:0;border:none');
         document.body.appendChild(tracking_frame);
         //如果load 事件1000毫秒后未触发，则不等待load 事件
@@ -1618,69 +1612,48 @@ _pt_sp_2.push('setEngageEnabled,1');
     }
     // 所有程序都放在callBack()里
     function callBack() {
-        /*
-         * 直接返回(不发包情况)
-         * 1. 不以http://或者https://开头，带了特定字符的为非法URL
-         * 2. miapex|ptengine|ptmind.com|jp|cn域名除了datatest外
-         * 3. URL地址包含ptengine=(弹出式热图)
-         * 4. URL地址或者refer中包含ptengine-event-explore=open(事件编辑)
-         */
-        // URL规则不正确
-        if (!loc.href.match(/^https?:\/\/.*/) || (loc.href.indexOf("#_pt_capture") > -1)) {//console.log("ptmind_debug:  "+"url not begin with http or https");
+        // 不以http://或者https://开头，带了特定字符的为非法URL
+        if (!loc.href.match(/^https?:\/\/.*/) || (loc.href.indexOf("#_pt_capture") > -1)) { //console.log("ptmind_debug:  "+"url not begin with http or https");
             return false;
         }
         // 如果不是产品布码页面，且位于产品(包括测试环境)热图的iframe中，或者从系统跳出来的，则不发报文
+
         var prodSid = [
-            '2dfd029f',//日本线上 PTEFB-2722
-            '323b0b0c',//新版中国report.ptengine.cn
-            '14311cf1',
-            '4ea10743',
-            '4d304c7a',
-            '46635348',
-            '31aee115',
-            '39a47d27',
-            '1568e5d4',
-            '1a8c08b0',
-            '6f1b18fd',
-            '566d12f9',
-            '51add8fa',
-            '15d58c7b', // 日本帮助站
-            '223c998c', // 海外帮助站
-            '17d1d4aa', // 占位
-            '308c8fdc', // 占位
-            '5102c629', // 占位
-            '5b85c19b', // 占位
-            '4e8daed1',	// 占位
-            '7201105c',//https://www.ptengine.jp/gmoc18/  张宇让添加
-            '645474fb',//https://www.ptengine.jp/linka18/     张宇让添加
-            '4e63000f'//https://www.ptengine.jp/A81812/     张宇让添加
+            '7918662e', // 中国区只有7918662e
+            '613dedb9', // 中国区产品站
+            '67c0f6ac', // 中国区测试站
+            '3fca011a', // 中国帮助站
+            '6ed7a454', // 占位
+            '7a192cf9', // 占位
+            '4c40caae', // 占位
+            '3b32cedc', // 占位
+            '65a94ff8' //中国测试区
         ];
-        if (prodSid.join(',').indexOf(sid)<0) {
+        if (prodSid.join(',').indexOf(sid) < 0) {
             // 测试站点（datatest开头，需要正常发包） && 产品测试站（屏蔽发包）
             var excludeDomainReg = /^http[s]?:\/\/((?!datatest).)+\.(miapex|ptengine|ptmind)\.(com|jp|cn)/;
-            if(excludeDomainReg.test(loc.href) || excludeDomainReg.test(doc.referrer)) {
+            if (excludeDomainReg.test(loc.href) || excludeDomainReg.test(doc.referrer)) {
                 return false;
             }
         }
-        // 弹出热图不发包
-        if(loc.href.indexOf("ptengine=") > -1){
+
+
+        //弹出热图不发包
+        if (location.href.indexOf("ptengine=") > -1) {
             return false;
         }
-        // 事件编辑不发包
-        if(loc.href.indexOf(openEventLabel) > -1 || (doc.referrer && doc.referrer.indexOf(openEventLabel) > -1)){
+        //事件编辑 不发包
+        if (location.href.indexOf(openEventLabel) > -1 || (doc.referrer && doc.referrer.indexOf(openEventLabel) > -1)) {
             return false;
         }
 
-
-        /*
-         * 获取必要页面信息,并对一些情况进行特殊处理
-         */
         // 判断该url是否开启了热图功能
         if (objPt.valFunction("heatmap", window["edc7uo"])) {
             heatmapFlag = true;
         }
-        // 根据访问终端的类型来调整页面静默时间(如果是pc或者模拟器，调整为30分钟)
+        // 根据访问终端的类型来调整页面静默时间
         switch (terminalType) {
+            // 如果是pc或者模拟器，调整为30分钟
             case 2:
             case 3:
                 SILENTTIMES = 1000 * 60 * 30;
@@ -1691,13 +1664,15 @@ _pt_sp_2.push('setEngageEnabled,1');
         // 如果是cellant的sid的话，不采集非移动终端的数据
         if (company == "cellant") {
             if (terminalType == 2 || terminalType == 3) {
+                //console.log("ptmind_debug:  "+"\"cellant\"web not collect PC");
                 return false;
             }
         }
         page = objBrowserInfo.getPage(); // 页面URL
-        initPage = page;    //页面URL备份
+        initPage = page; //页面URL备份
         pageID = objCommon.createID(page); // 页面ID
-        objHttpCookies.clearOtherCookie();//临时添加的方法
+        objHttpCookies.clearOtherCookie(); //临时添加的方法
+        cookieOfPt.writeRefererCookies();
         cookieOfPt.readCookies();
         funnelPage = (cookieOfPt.cookiesValue && funnelPage) ? true : false;
         if (funnelPage) {
@@ -1706,64 +1681,60 @@ _pt_sp_2.push('setEngageEnabled,1');
             ref = objBrowserInfo.getRef();
             preVID = cookieOfPt.getValueFromCookies("vid");
         }
-
-
-        /*
-         * cookie迁移到新的地方,全部删除过去的cookie(cookie的name带有pt_sid_path的全部删除)
-         */
-        (function(){
-            function deleteCookie(name){
-                function deleteCookieTemp(name,domain,path){
+        //cookie迁移到新的地方
+        //全部删除过去的cookie(cookie的name带有pt_sid_path的全部删除)
+        (function () {
+            function deleteCookie(name) {
+                function deleteCookieTemp(name, domain, path) {
                     var date = new Date();
                     date.setTime(date.getTime() - 10000);
-                    doc.cookie = name+"='';expires="+date.toGMTString()+";domain="+domain+";path="+path+";"
-                    doc.cookie = name+"='';expires="+date.toGMTString()+";domain="+domain+";path="+path+"/;"
+                    document.cookie = name + "='';expires=" + date.toGMTString() + ";domain=" + domain + ";path=" + path + ";"
+                    document.cookie = name + "='';expires=" + date.toGMTString() + ";domain=" + domain + ";path=" + path + "/;"
                 }
-                deleteCookieTemp(name,"","");
-                var tempDomain = loc.hostname.split(".");
-                var tempPath   = loc.pathname.split("/");
-                for(var i=0;i<tempDomain.length;i++){
-                    for(var j=0;j<tempPath.length;j++){
-                        deleteCookieTemp(name,tempDomain.slice(i).join("."),tempPath.slice(0,parseInt(j)+1).join("/"))
+                deleteCookieTemp(name, "", "");
+                var tempDomain = document.location.hostname.split(".");
+                var tempPath = document.location.pathname.split("/");
+                for (var i = 0; i < tempDomain.length; i++) {
+                    for (var j = 0; j < tempPath.length; j++) {
+                        deleteCookieTemp(name, tempDomain.slice(i).join("."), tempPath.slice(0, parseInt(j) + 1).join("/"))
                     }
                 }
             }
-            // 获取所有cookie
-            var allCookie=doc.cookie.split(";");
-            for(var i=0;i<allCookie.length;i++){
+            var allCookie = doc.cookie.split(";");
+            for (var i = 0; i < allCookie.length; i++) {
                 allCookie[i] = allCookie[i].split("=");
-                if(allCookie[i][0].indexOf(COOKIESNAME)>-1){    // 包含pt_[sid]
-                    cookieOfPt.cookiesValue = allCookie[i].slice(1).join("=");  // 去除前置空格
-                    deleteCookie(allCookie[i][0]);//将过去旧的cookie位置删除，3.5需求中把过去的cookie全部删除，并且把cookie位置，迁移到主域的根目录
-                }else if(allCookie[i][0].indexOf(SESSIONCOOKIESNAME)>-1){   // 包含 pt_s_[sid]
-                    var sessionValueTemp = SESSIONCOOKIESNAME+"="+allCookie[i].slice(1).join("=")+";domain="+domainName+";path=/;";
-                    deleteCookie(allCookie[i][0]);//将过去旧的cookie位置删除，3.5需求中把过去的cookie全部删除，并且把cookie位置，迁移到主域的根目录
+                if (allCookie[i][0].indexOf(COOKIESNAME) > -1) {
+                    cookieOfPt.cookiesValue = allCookie[i].slice(1).join("=");
+                    deleteCookie(allCookie[i][0]); //将过去旧的cookie位置删除，3.5需求中把过去的cookie全部删除，并且把cookie位置，迁移到主域的根目录
+                } else if (allCookie[i][0].indexOf(SESSIONCOOKIESNAME) > -1) {
+                    var sessionValueTemp = SESSIONCOOKIESNAME + "=" + allCookie[i].slice(1).join("=") + ";domain=" + domainName + ";path=/;";
+                    //alert(sessionValueTemp);
+                    deleteCookie(allCookie[i][0]); //将过去旧的cookie位置删除，3.5需求中把过去的cookie全部删除，并且把cookie位置，迁移到主域的根目录
                 }
             }
-            if(sessionValueTemp){
-                doc.cookie = sessionValueTemp;
+            if (sessionValueTemp) {
+                document.cookie = sessionValueTemp;
             }
         })();
-
-
         /**************cookies处理开始**************************************/
         /*合并成URL传参时用的信息串*/
-        function isHasSearchInUrl(list){//如果包含特殊参数，则切断访次
+        function isHasSearchInUrl(list) { //如果包含特殊参数，则切断访次
             //用户设置了忽略广告参数时,不切断访次
-            if(ignoreCampaign){
+            if (ignoreCampaign) {
                 return false;
             }
-            if(loc.href.match(/(utm_campaign|utm_source|utm_medium|utm_term|utm_content)/)){
+            if (location.href.match(/(utm_campaign|utm_source|utm_medium|utm_term|utm_content)/)) {
                 return true;
             }
-            for(var i=0;i<list.length;i++){
-                if(loc.search.match(new RegExp("[?/&]("+list[i]+")="))){
+            for (var i = 0; i < list.length; i++) {
+                if (location.search.match(new RegExp("[?/&](" + list[i] + ")="))) {
                     return true;
                 }
             }
             return false;
         }
-        function isFromSearchEngine(){  // 搜索引擎
+
+        function isFromSearchEngine() { // 搜索引擎
             var all = ["(wap|www|m|m5).baidu.com",
                 "www.baidu.jp",
                 "(hao|so).360.cn",
@@ -1782,9 +1753,10 @@ _pt_sp_2.push('setEngageEnabled,1');
                 "search.(goo|smt.docomo).ne.jp",
                 "search.nifty.com",
                 "websearch.rakuten.co.jp",
-                "www.so-net.ne.jp"];
-            for(var i=0;i<all.length;i++){
-                if(doc.referrer.match(new RegExp(all[i]))){
+                "www.so-net.ne.jp"
+            ];
+            for (var i = 0; i < all.length; i++) {
+                if (doc.referrer.match(new RegExp(all[i]))) {
                     return true;
                 }
             }
@@ -1799,7 +1771,7 @@ _pt_sp_2.push('setEngageEnabled,1');
             /*************指纹采集结束****************************************/
             uid = objCommon.createID(objBrowserInfo.getUidStr());
             if (!uid) { // 判断uid是否为空，如果为空，通过时间和随机数重新创建uid
-                uid = objCommon.createID((new Date()).getTime()+""+Math.random());
+                uid = objCommon.createID((new Date()).getTime() + "" + Math.random());
             }
             isNID = "1"; // 新访客
             visitNum = 0; // 访次重新计数
@@ -1818,7 +1790,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                 isNV = "1"; // 计为新访次
                 visitRef = ref["referrer"];
             }
-        }else if(isHasSearchInUrl(camParamAry) || isFromSearchEngine()) {
+        } else if (isHasSearchInUrl(camParamAry) || isFromSearchEngine()) {
             if (multiLinkTag) {
                 // 如果是多域访问过来的
                 var tmpLinkTagAry = multiLinkTag.split(".");
@@ -1833,24 +1805,24 @@ _pt_sp_2.push('setEngageEnabled,1');
             } else {
                 // 如果不是新用户，且不是多域过来的，则获得uid，visitNum，NID，NV
                 uid = cookieOfPt.getValueFromCookies("uid");
-                if (!uid) {     // 判断uid是否为空，如果为空，通过时间和随机数重新创建uid
-                    uid = objCommon.createID((new Date()).getTime()+""+Math.random());
+                if (!uid) { // 判断uid是否为空，如果为空，通过时间和随机数重新创建uid
+                    uid = objCommon.createID((new Date()).getTime() + "" + Math.random());
                 }
                 isNID = cookieOfPt.getIsNID();
                 visitNum = cookieOfPt.getValueFromCookies("vn");
                 isNV = "1"; // 计为新访次
                 visitRef = ref["referrer"];
             }
-        }else {
+        } else {
             // 获取sessionCookie
             sessionCookiesValue = objHttpCookies.getValue(SESSIONCOOKIESNAME);
-            if(hasHttpCookies){
-                if(sessionCookiesValue){
+            if (hasHttpCookies) {
+                if (sessionCookiesValue) {
                     sessionCookieFlag = 1;
-                }else{
+                } else {
                     sessionCookieFlag = 0;
                 }
-            }else{
+            } else {
                 sessionCookieFlag = -1;
             }
             //if (multiLinkTag && (sessionCookieFlag == 0)) {
@@ -1873,8 +1845,8 @@ _pt_sp_2.push('setEngageEnabled,1');
             } else {
                 // 如果不是新用户，且不是多域过来的，则获得uid，visitNum，NID，NV
                 uid = cookieOfPt.getValueFromCookies("uid");
-                if (!uid) {     // 判断uid是否为空，如果为空，通过时间和随机数重新创建uid
-                    uid = objCommon.createID((new Date()).getTime()+""+Math.random());
+                if (!uid) { // 判断uid是否为空，如果为空，通过时间和随机数重新创建uid
+                    uid = objCommon.createID((new Date()).getTime() + "" + Math.random());
                 }
                 isNID = cookieOfPt.getIsNID();
                 if (cookieOfPt.getIsRefresh(visitTime) == 1) {
@@ -1900,7 +1872,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                 pvNum = (isNV == "1") ? 0 : (tmpPvNum ? tmpPvNum : 1);
                 pageList = (isNV == "1") ? "" : cookieOfPt.getValueFromCookies("pl");
                 //visitRef = (isNV == "1") ? ref["referrer"] : cookieOfPt.getValueFromCookies("vr");
-                visitRef = (isNV == "1") ? ref["referrer"] : ( (win.localStorage && (typeof(win.localStorage.removeItem)=="function")) ? win.localStorage.getItem(profileID) : "");
+                visitRef = (isNV == "1") ? ref["referrer"] : ((win.localStorage && (typeof (win.localStorage.removeItem) == "function")) ? win.localStorage.getItem(profileID) : "");
                 if (isNV == "1") {
                     // 如果此时为新访次
                     objHttpCookies.setValue(SESSIONCOOKIESNAME, visitTime, {
@@ -1909,33 +1881,26 @@ _pt_sp_2.push('setEngageEnabled,1');
                 }
             }
         }
-
-
-        /*
-         * 抽样采集
-         */
-        if (sampleRate) {//开启抽样率API--dennis
+        if (sampleRate) { //开启抽样率API--dennis
             //抽样率必须是数字
-            if(/^\d+$/.test(sampleRate)){
+            if (/^\d+$/.test(sampleRate)) {
                 var base64EncodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/";
                 //从uid中取出8个base64的字符
-                var shortUid= uid.substr(1,2)
-                    +uid.substr(5,1)+uid.substr(8,1)+
-                    uid.substr(10,1)+ uid.substr(13,1)+ uid.substr(15,1)+uid.substr(19,1);
+                var shortUid = uid.substr(1, 2) +
+                    uid.substr(5, 1) + uid.substr(8, 1) +
+                    uid.substr(10, 1) + uid.substr(13, 1) + uid.substr(15, 1) + uid.substr(19, 1);
                 var index = 0;
                 var number = 0;
                 //将8个base64的字符转换为数字
                 while (index < 8) {
                     var c = shortUid.charAt(7 - index);
                     var n = base64EncodeChars.indexOf(c);
-                    number += n*Math.pow(64,index);
+                    number += n * Math.pow(64, index);
                     index++;
                 }
-                if(number % sampleRate != 0) return;
+                if (number % sampleRate != 0) return;
             }
         }
-
-
         // 各状态变量的赋值
         pageAccessTime = visitTime; // 页面初访时间（pat)
         siteActionTime = (multiLinkTag) ? siteActionTime : visitTime; // 登录网站最近操作时间（包括此次的加载代码）(sact)，多域访问的话，则继承
@@ -1954,26 +1919,26 @@ _pt_sp_2.push('setEngageEnabled,1');
         // 更新cookies
         cookieOfPt.writeCookies();
         //=======================对当前的iframe传递进入hash值========================
-        (function(){
-            if(openIframe || sid == "7f21ceb9"){
-                var allIframe = doc.getElementsByTagName("iframe");
-                for (var i=0; i<allIframe.length; i++) {
-                    allIframe[i].onload = (function(i) {
-                        return function(objEvent_){
-                            this.contentWindow.document.onclick = function(objEvent_) {
+        (function () {
+            if (openIframe || sid == "7f21ceb9") {
+                var allIframe = document.getElementsByTagName("iframe");
+                for (var i = 0; i < allIframe.length; i++) {
+                    allIframe[i].onload = (function (i) {
+                        return function (objEvent_) {
+                            this.contentWindow.document.onclick = function (objEvent_) {
                                 var currentOffset = objBrowserInfo.getOffset(allIframe[i]);
                                 iframeValue[0] = currentOffset.left;
                                 iframeValue[1] = currentOffset.top;
-                                var iFrameCssString ="";
-                                try{
-                                    iFrameCssString=objPt.getCssPath(allIframe[i]);
-                                }catch (err){}
+                                var iFrameCssString = "";
+                                try {
+                                    iFrameCssString = objPt.getCssPath(allIframe[i]);
+                                } catch (err) {}
                                 iframeValue[2] = encodeURIComponent(iFrameCssString);
 
                                 // 取得点击的相对坐标
                                 mouseCoo = objBrowserInfo.getMouseRC1(objEvent_);
                                 // 超出页面内容范围，不计统计
-                                if(objBrowserInfo.getPageHeight()>0){
+                                if (objBrowserInfo.getPageHeight() > 0) {
                                     if (mouseCoo.x <= 0 || mouseCoo.y <= 0 || mouseCoo.x > +objBrowserInfo.getPageWidth() || mouseCoo.y > +objBrowserInfo.getPageHeight())
                                         return;
                                 }
@@ -1988,7 +1953,7 @@ _pt_sp_2.push('setEngageEnabled,1');
         })();
         // 网站ID+用户ID+页面+访次ID+页面访问ID
         var loadTime = ((window["_pt_lt"] != -1) ? (new Date().getTime() - window["_pt_lt"]) : 0);
-        if(loadTime<0){
+        if (loadTime < 0) {
             loadTime = 0;
         }
         var pnvData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
@@ -2008,75 +1973,70 @@ _pt_sp_2.push('setEngageEnabled,1');
         // console.log('before pt_id+sid setting');
         
         localStorage.setItem("PT_ID_"+sid,sid + "." + uid + "." + visitID + "." + pageID + "." + pvEventID);
-
-        /**
+    /**
          * @fixme 直接拉取js
          * 需要开启标识识别
          */
-        (loc.href.indexOf(engagePreviewTokenKey)==-1) && enableEngage && (function(){
-            var protocol = ("https:" == loc.protocol) ? "https://" : "http://" 
-            var script = doc.createElement('script');
+        (loc.href.indexOf(engagePreviewTokenKey)==-1) &&enableEngage && (function(){
+            var protocol = ("https:" == location.protocol) ? "https://" : "http://" 
+            var script = document.createElement('script');
             script.type = 'text/javascript';
             script.async = true;
             script.charset = 'UTF-8';
-            // script.src = protocol+"pteengagejs.ptengine.jp/engage_" + sid + '.js?ts='  + (new Date()).getTime() ;
-            //测试环境
+            //测试环境老版本地址
             // script.src = protocol+'jstest.ptmind.cn/engage.js?v=' + version ;
-            //线上环境
-            script.src = protocol+'pteengagejs.ptengine.jp/engage.js?v=' + version ;
-            //staging环境
-            // script.src = protocol+'stagingpteengagejs.ptmind.com/engage.js?v=' + version ;
-
+            //测试环境新版本地址
+            // script.src = protocol+'jstest.ptmind.cn/v2/engage.js?v=' + version ;
+            //生产环境地址
+            script.src = protocol+'pteengagejs.ptengine.cn/engage.js?v=' + version ;
             try{
                 localStorage.setItem('PTSID',sid);
                 doc.body.appendChild(script); //插入到body的最后。不然会影响元素选择器的生成
-                
+
             }catch (ex){
                 doc.getElementsByTagName('head')[0].appendChild(script);
             }
 
         })();
-
-        ptq = "?id=" + sid + "." + uid + "." + visitID + "." + pageID + "." + pvEventID
-            + "&stat=" + ((isNV == "1") ? visitNum : pvNum) + "." + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag))
-            + "." + yMax * rotationFlag + "." + objBrowserInfo.getViewHeight() + "." + loadTime
-            + "." + ((isNV == "1") ? ref["flag"] : objBrowserInfo.getRefType(visitRef))
-            + ((isNV == "1") ? "" : ("." + visitNum))
-            + "&ref=" + objCommon.encode(ref["referrer"].replace(/&/g, "*&*").replace(/\+/g, "*+*"), false)
-            + ((isNV != "1") ? ("&vref=" + objCommon.encode(visitRef, false)) : "")
-            + "&p=" + objCommon.encode(page.replace(/&/g, "*&*"), false) + "&tl=" + title
-            + (adParamStr ? ("&cad=" + adParamStr) : "")
-            + "&ptif=" + terminalType;
+        ptq = "?id=" + sid + "." + uid + "." + visitID + "." + pageID + "." + pvEventID +
+            "&stat=" + ((isNV == "1") ? visitNum : pvNum) + "." + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
+            "." + yMax * rotationFlag + "." + objBrowserInfo.getViewHeight() + "." + loadTime +
+            "." + ((isNV == "1") ? ref["flag"] : objBrowserInfo.getRefType(visitRef)) +
+            ((isNV == "1") ? "" : ("." + visitNum)) +
+            "&ref=" + objCommon.encode(ref["referrer"].replace(/&/g, "*&*").replace(/\+/g, "*+*"), false) +
+            ((isNV != "1") ? ("&vref=" + objCommon.encode(visitRef, false)) : "") +
+            "&p=" + objCommon.encode(page.replace(/&/g, "*&*"), false) + "&tl=" + title +
+            (adParamStr ? ("&cad=" + adParamStr) : "") +
+            "&ptif=" + terminalType;
         ptq += objBrowserInfo.getSysInfo();
         ptq += getABTestString();
-        for(var i=0;i<customVarList.length;i++){//增加用户自定义变量
-            if(customVarList[i][2]=="cookie"){
+        for (var i = 0; i < customVarList.length; i++) { //增加用户自定义变量
+            if (customVarList[i][2] == "cookie") {
                 var cookieOfCustomVar = objHttpCookies.getValue(customVarList[i][1]);
-                if(cookieOfCustomVar){
-                    ptq += "&"+customVarList[i][0]+"="+objCommon.encode(cookieOfCustomVar,false);
+                if (cookieOfCustomVar) {
+                    ptq += "&" + customVarList[i][0] + "=" + objCommon.encode(cookieOfCustomVar, false);
                     pnvData.addPropery(customVarList[i][0],objCommon.encode(cookieOfCustomVar, false));
                 }
-            }else{
-                ptq += "&"+customVarList[i][0]+"="+objCommon.encode(customVarList[i][1],false);
+            } else {
+                ptq += "&" + customVarList[i][0] + "=" + objCommon.encode(customVarList[i][1], false);
                 pnvData.addPropery(customVarList[i][0],objCommon.encode(customVarList[i][1], false));
             }
         }
-
         if(PageViewVar) {
             ptq += '&pvid=' + encodeURIComponent(PageViewVar);
             pnvData.addPropery("pvid",encodeURIComponent(PageViewVar));
         }
 
-        if(isNV == "1"){
-            function compareHrefToRef(href, ref) {	//http://jira.ptmind.com/browse/FB-679|比较两个链接是否在不同域名下，是：返回1，否：返回0[zhaopengjun 2015-05-04]
-                for (var i=0; i<domainSet.length; i++) {
+        if (isNV == "1") {
+            function compareHrefToRef(href, ref) { //http://jira.ptmind.com/browse/FB-679|比较两个链接是否在不同域名下，是：返回1，否：返回0[zhaopengjun 2015-05-04]
+                for (var i = 0; i < domainSet.length; i++) {
                     if (href.indexOf(domainSet[i]) > -1 && ref["referrer"].indexOf(domainSet[i]) > -1) {
                         return 0;
                     }
                 }
                 return 1;
             }
-            if (multiDomainFlag && crossDomainLink != "allManual" && ref["referrer"] != "" && compareHrefToRef(loc.href, ref) && objBrowserInfo.getRefType(ref["referrer"]) == 0 && !loc.href.match(/[\#|\?|\&]_pt_link=[^#|^&]*/)) { 	//http://jira.ptmind.com/browse/FB-601|增加sid=4feafb6a的跨域处理[zhaopengjun 2015-03-26]
+            if (multiDomainFlag && (sid == "519aa7cd" || sid == "4d304c7a") && crossDomainLink != "allManual" && ref["referrer"] != "" && compareHrefToRef(loc.href, ref) && objBrowserInfo.getRefType(ref["referrer"]) == 0 && !loc.href.match(/[\#|\?|\&]_pt_link=[^#|^&]*/)) {
                 //跨域失败后，手动发送pn包
                 pageID = objCommon.createID(ref["referrer"]);
                 pvEventID = objCommon.createID(uid + visitID + ref["referrer"] + pageAccessTime + "v");
@@ -2093,6 +2053,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                 pnvData.addPropery("ptif",terminalType + objBrowserInfo.getSysInfo());
 
                 PageViewVar && pnvData.addPropery("pvid",encodeURIComponent(PageViewVar));
+                
 
                 if(!objPt.sendPost(pnURL,pnvData.getJSONRet())){
                     ptq = "?id=" + sid + "." + uid + "." + visitID + "." + pageID + "." + pvEventID +
@@ -2107,13 +2068,12 @@ _pt_sp_2.push('setEngageEnabled,1');
                     PageViewVar && (ptq += '&pvid=' + encodeURIComponent(PageViewVar));
                     objPt.sendMsg(pnURL + ptq);
                 }
-
-                (function() {
+                
+                (function () {
                     //跨域失败后，手动发送pv包
                     pageID = objCommon.createID(page);
                     pvEventID = objCommon.createID(uid + visitID + page + pageAccessTime + "v");
                     pvNum = +pvNum + 1;
-
                     pnvData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
 
                     pnvData.addPropery("stat",pvNum + "." + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
@@ -2144,14 +2104,14 @@ _pt_sp_2.push('setEngageEnabled,1');
                         PageViewVar && (ptq += '&pvid=' + encodeURIComponent(PageViewVar));
                         objPt.sendMsg(pvURL + ptq);
                     }
-                    
+
                 })();
             } else {
                 if(!objPt.sendPost(pnURL,pnvData.getJSONRet())){
                     objPt.sendMsg(pnURL + ptq);
                 }
             }
-        }else{
+        } else {
             if(!objPt.sendPost(pvURL,pnvData.getJSONRet())){
                 objPt.sendMsg(pvURL + ptq);
             }
@@ -2162,17 +2122,17 @@ _pt_sp_2.push('setEngageEnabled,1');
             expires: ""
         });
         // 如果是新访，将访次的vref放在localstorage里
-        if ((isNV == "1") && win.localStorage && (typeof(win.localStorage.removeItem)=="function")){
+        if ((isNV == "1") && win.localStorage && (typeof (win.localStorage.removeItem) == "function")) {
             win.localStorage.removeItem(profileID);
-            win.localStorage.setItem(profileID,visitRef);
+            win.localStorage.setItem(profileID, visitRef);
         }
         // 多域处理
-        if (multiDomainFlag) {	//http://jira.ptmind.com/browse/FB-601|增加sid=4feafb6a的跨域处理[zhaopengjun 2015-03-26]
+        if (multiDomainFlag) {
             if (doc.readyState == "complete") {
                 whandler();
             } else {
                 var oldWindowHandler = win.onload;
-                win.onload = function() {
+                win.onload = function () {
                     if (!!oldWindowHandler) {
                         oldWindowHandler();
                     }
@@ -2180,6 +2140,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                 };
             }
         }
+
 
         /*
          * 添加事件
@@ -2195,76 +2156,76 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
             //else target["on" + type] = func; // 防止覆盖原有设定
         }
-		
-		
-		/**
+
+
+        /**
          * 开始对 "input","textarea","select", "embed" 四种类型的元素进行绑定focus 事件
          */
-        var bindFocus = function() {
-			// 建一队列用于记录历史focus
-			var lastFocusDomQueue = [null, null];
-			
-			// 此举是为解决chrome下焦点由一个元素切换到window再转移到另一个元素时，会再次触发第一个元素的focus事件的问题
-			var isFireFocus = function(el, lastFocusDomQueue) {
-				// chrome下的特殊处理
-				if(objBrowserInfo.browerType != 'Chrome') {
-					return true;
-				}
-				
-				if(lastFocusDomQueue[0] == el && lastFocusDomQueue[1] == win) {
-					//console.log(lastFocusDomQueue, '不发');
-					return false;
-				}
-				
-				if(lastFocusDomQueue[0] == win && lastFocusDomQueue[1] == win) {
-					//console.log(lastFocusDomQueue, '不发');
-					return false;
-				}
-				
-				//console.log(lastFocusDomQueue, '发包' + el.id);
-				return true;
-			}
-			
-			addEvent(win, 'focus', function(e) {
-				//console.log('win focus')
-				
-				if(lastFocusDomQueue[1] == this) {
-					return;
-				}
-				
-				lastFocusDomQueue.push(this);
-				lastFocusDomQueue.shift();
-			});
-			
-			addEvent(win, 'click', function(e) {
-				//console.log('win click')
-				
-				if(lastFocusDomQueue[1] == this) {
-					return;
-				}
-				
-				var dom = e.target || e.srcElement;
-				lastFocusDomQueue.push(dom);
-				lastFocusDomQueue.shift();
-			});
-			
-			return function() {
-				
-				// iphone手机走click
-				if (/windows|win32/i.test(na.userAgent) && /msie|trident|edge/i.test(na.userAgent) || /(iPhone|iPad|iPod|iOS)/.test(na.userAgent)) {
-					formElementTriggerEventType = 'click'; //
-				} else {
-					for (var j = 0; j < allFocusType.length; j++) {
-						var allFormInput = doc.getElementsByTagName(allFocusType[j]);
-						for (var i = 0; i < allFormInput.length; i++) {
+        var bindFocus = function () {
+            // 建一队列用于记录历史focus
+            var lastFocusDomQueue = ['', ''];
 
-							addEvent(allFormInput[i], "focus", function (objEvent_) {
-								if (isFireFocus(this, lastFocusDomQueue)) {
+            // 此举是为解决chrome下焦点由一个元素切换到window再转移到另一个元素时，会再次触发第一个元素的focus事件的问题
+            var isFireFocus = function (el, lastFocusDomQueue) {
+                // chrome下的特殊处理
+                if (objBrowserInfo.browerType != 'Chrome') {
+                    return true;
+                }
 
-									srcElement = objBrowserInfo.getSrcElement(objEvent_);
-									//当前元素能够触发的事件
-									var customEventContainer = checkEventList(srcElement);
-									var customEventObj = buildCustomEventObj(customEventContainer);
+                if (lastFocusDomQueue[0] == el && lastFocusDomQueue[1] == window) {
+                    //console.log(lastFocusDomQueue, '不发');
+                    return false;
+                }
+
+                if (lastFocusDomQueue[0] == window && lastFocusDomQueue[1] == window) {
+                    //console.log(lastFocusDomQueue, '不发');
+                    return false;
+                }
+
+                //console.log(lastFocusDomQueue, '发包' + el.id);
+                return true;
+            }
+
+            addEvent(window, 'focus', function (e) {
+                //console.log('win focus')
+
+                if (lastFocusDomQueue[1] == this) {
+                    return;
+                }
+
+                lastFocusDomQueue.push(this);
+                lastFocusDomQueue.shift();
+            });
+
+            addEvent(window, 'click', function (e) {
+                //console.log('win click')
+
+                if (lastFocusDomQueue[1] == this) {
+                    return;
+                }
+
+                var dom = e.target || e.srcElement;
+                lastFocusDomQueue.push(dom);
+                lastFocusDomQueue.shift();
+            });
+
+            return function () {
+
+                // iphone手机走click
+                if (/windows|win32/i.test(na.userAgent) && /msie|trident|edge/i.test(na.userAgent) || /(iPhone|iPad|iPod|iOS)/.test(na.userAgent)) {
+                    formElementTriggerEventType = 'click'; //
+                } else {
+                    for (var j = 0; j < allFocusType.length; j++) {
+                        var allFormInput = document.getElementsByTagName(allFocusType[j]);
+                        for (var i = 0; i < allFormInput.length; i++) {
+
+                            addEvent(allFormInput[i], "focus", function (objEvent_) {
+                                if (isFireFocus(this, lastFocusDomQueue)) {
+
+                                    srcElement = objBrowserInfo.getSrcElement(objEvent_);
+                                    //当前元素能够触发的事件
+                                    var customEventContainer = checkEventList(srcElement);
+                                    var customEventObj = buildCustomEventObj(customEventContainer);
 
                                     if (customEventObj) { //合并的te包
                                         var teData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
@@ -2292,31 +2253,31 @@ _pt_sp_2.push('setEngageEnabled,1');
                                             objPt.sendMsgByScript(teURL + tmpMsg);
                                         }
 
-									}
-								}
 
-								lastFocusDomQueue.push(allFormInput[i]);
-								lastFocusDomQueue.shift();
-							});
-						}
-					}
-				}
-			}
+                                    }
+                                }
+
+                                lastFocusDomQueue.push(allFormInput[i]);
+                                lastFocusDomQueue.shift();
+                            });
+                        }
+                    }
+                }
+            }
         }();
-		
-		
-		
-		
+
+
+
         /*********************可输入框的焦点触发事件设置开始**********************************/
-        var allFocusType=["input","textarea","select", "embed"];//所有会触发focus的对象
+        var allFocusType = ["input", "textarea", "select", "embed"]; //所有会触发focus的对象
         //先判断页面当前状态,loading 完毕之后可以开始绑定 focus 事件了
-        if(doc.readyState.toLowerCase() === "interactive" || doc.readyState.toLowerCase() === "complete"){
+        if (document.readyState.toLowerCase() === "interactive" || document.readyState.toLowerCase() === "complete") {
             //页面元素已经加载完毕, 直接进行绑定事件
             bindFocus();
         } else {
             //如果仍然在 loading 状态, 等状态变更后再绑定
-            doc.onreadystatechange = function(){
-                if(doc.readyState.toLowerCase() === "complete" ){
+            document.onreadystatechange = function () {
+                if (document.readyState.toLowerCase() === "complete") {
                     bindFocus();
                 }
             }
@@ -2326,60 +2287,61 @@ _pt_sp_2.push('setEngageEnabled,1');
          * 检查当前srcElement 是否有在事件列表中,如果存在事件 则发送te包
          * (在"input","textarea","select", "embed"的focus,其它的元素的click,touchend事件中调用)
          */
-        function checkEventList(targetElement,parentAOfThisDom) {
+        function checkEventList(targetElement, parentAOfThisDom) {
             //旧版事件,点击的元素向上冒泡到其上级为a的的元素,用a元素作为事件元素
             var oldEventElement = targetElement;
-            if(typeof(parentAOfThisDom)=="object"){
-                oldEventElement= parentAOfThisDom;
+            if (typeof (parentAOfThisDom) == "object") {
+                oldEventElement = parentAOfThisDom;
             }
             //获取当前点击元素的选择器(旧版选择器,为旧版事件判断元素用)
             var oldJqueryCssString = "";
-            try{
+            try {
                 oldJqueryCssString = objPt.getCssPathOld(oldEventElement);
-            }catch(err){}
+            } catch (err) {}
 
-            var newEventTriggerList =[];//新版事件 触发列表。点击一个元素后,其上级/祖先级元素上的事件合并到一个te包
-            var oldEventTrigger;//旧版事件 触发列表。点击一个元素后,其上级/祖先级元素上的事件合并到一个te包
+            var newEventTriggerList = []; //新版事件 触发列表。点击一个元素后,其上级/祖先级元素上的事件合并到一个te包
+            var oldEventTrigger; //旧版事件 触发列表。点击一个元素后,其上级/祖先级元素上的事件合并到一个te包
 
             if (asyncEventList.length > 0) {
                 //循环用户定义的事件列表
                 for (var i = 0; i < asyncEventList.length; i++) {
-                    try{
+                    try {
                         var asyncEventItem = asyncEventList[i];
                         //新版事件
                         if (asyncEventItem.length >= 10) {
                             //获取选择器元素 asyncEventItem[9] 是用户设定的 text, 只有text 符合这个值的元素才会发送事件
                             //有可能用户设置的选择器能够匹配多个元素
                             var elems = _queryElements(asyncEventItem[7], asyncEventItem[9]);
-                            var isTriggerEvent =false;//当前循环的事件是否已经触发
+                            var isTriggerEvent = false; //当前循环的事件是否已经触发
                             //循环用户设置的选择器匹配的元素,只要有一个和当前点击的元素相同,则发送te包,并停止循环(后面的元素不需要再比较了)
                             for (var j = 0, tempLength = elems.length; j < tempLength; j++) {
-                                isTriggerEvent=checkEvent(targetElement,elems[j]);
-                                if(isTriggerEvent){//如果触发了,则不在继续查看剩余的元素
+                                isTriggerEvent = checkEvent(targetElement, elems[j]);
+                                if (isTriggerEvent) { //如果触发了,则不在继续查看剩余的元素
                                     //'事件名称:是否时自动事件:是否时活动元素'
                                     // newEventTriggerList.push(asyncEventItem[3]+':1'+':'+(asyncEventItem[5]=='false'?'1':'0'));
                                     //newEventTriggerList.push(asyncEventItem[3]+':1'+':0');
                                     //test 自定义变量
-                                    newEventTriggerList.push(asyncEventItem[3]+':1'+':0');
+                                    newEventTriggerList.push(asyncEventItem[3] + ':1' + ':0');
                                     break;
                                 }
                             }
 
                         }
                         //旧版事件(先用jquery选择元素来比较。如果目标网页没有用jquery,则用选择器比较)
-                        else if ((typeof(jQuery) == "function" && jQuery(asyncEventItem[7])[0] == oldEventElement) || (typeof(jQuery) != "function" && asyncEventItem[7] == oldJqueryCssString)) {
+                        else if ((typeof (jQuery) == "function" && jQuery(asyncEventItem[7])[0] == oldEventElement) || (typeof (jQuery) != "function" && asyncEventItem[7] == oldJqueryCssString)) {
                             var tempEventStr = asyncEventItem;
-                            oldEventTrigger=tempEventStr.slice(1, 5);
+                            oldEventTrigger = tempEventStr.slice(1, 5);
                             // _pt_sp_2.push('setTrackEvent,' + tempEventStr.slice(1, 5).join(","));
                         }
-                    }catch (err){//异常选择器后跳过该事件的获取 
+                    } catch (err) { //异常选择器后跳过该事件的获取
+
 
                     }
                 }
             }
             return {
-                newEventTriggerList:newEventTriggerList,
-                oldEventTrigger:oldEventTrigger
+                newEventTriggerList: newEventTriggerList,
+                oldEventTrigger: oldEventTrigger
             }
         }
 
@@ -2389,7 +2351,7 @@ _pt_sp_2.push('setEngageEnabled,1');
          * @param elem:事件中设置的元素
          * @returns {*} 是否触发了事件
          */
-        function checkEvent(targetElement,elem) {
+        function checkEvent(targetElement, elem) {
             //如果点击的元素和但前传入的elem一直 在发送te包,并返回 true(标示发送了te包)
             if (targetElement === elem) {
                 //发送事件  asyncEventItem[8] = eid
@@ -2397,8 +2359,8 @@ _pt_sp_2.push('setEngageEnabled,1');
                 return true;
             }
             //如果但前传入的elem 和点击的元素不同,则向上冒泡 判断 点击元素 的父级元素是否相同,一直冒泡到body
-            else if(targetElement.nodeName.toLowerCase()!=='body'){
-                return checkEvent(targetElement.parentNode,elem);
+            else if (targetElement.nodeName.toLowerCase() !== 'body') {
+                return checkEvent(targetElement.parentNode, elem);
             }
             //如果冒泡到body 也没有匹配的元素,则返回false(说明传入的elem 和点击的元素 以及其父级,祖先级元素都不匹配)
             return false;
@@ -2410,24 +2372,27 @@ _pt_sp_2.push('setEngageEnabled,1');
          * @returns {eid:新事件,stat:旧版事件}
          */
         function buildCustomEventObj(customEventContainer) {
-            if(!customEventContainer){
+            if (!customEventContainer) {
                 return false;
             }
-            var eid,stat;
-            if(customEventContainer.newEventTriggerList && customEventContainer.newEventTriggerList.length){
+            var eid, stat;
+            if (customEventContainer.newEventTriggerList && customEventContainer.newEventTriggerList.length) {
                 eid = customEventContainer.newEventTriggerList.join(',');
             }
-            if(customEventContainer.oldEventTrigger){
+            if (customEventContainer.oldEventTrigger) {
                 stat = customEventContainer.oldEventTrigger.join('.')
             }
-            if(!eid && !stat){
+            if (!eid && !stat) {
                 return false;
-            }else{
-                return {eid:eid?eid:'',stat:stat?stat:''}
+            } else {
+                return {
+                    eid: eid ? eid : '',
+                    stat: stat ? stat : ''
+                }
             }
         }
 
-        
+
         /*********************可输入框的焦点触发事件设置结束**********************************/
         /*********************鼠标移动触发事件设置开始**********************************/
         //addEvent(win, "mousemove", mousemovePrc);
@@ -2474,20 +2439,20 @@ _pt_sp_2.push('setEngageEnabled,1');
         */
         /*********************鼠标移动触发事件设置结束**********************************/
         /*********************横屏触发事件设置开始**********************************/
-        addEvent(win, "onorientationchange", function(objEvent_){
+        addEvent(win, "onorientationchange", function (objEvent_) {
             rotationFlag = ((win.orientation == undefined || win.orientation == 0) ? 1 : -1);
         });
         /*********************横屏触发事件设置结束**********************************/
 
         /*********************拖动触发事件设置开始**********************************/
         // 设置拖动标志
-        addEvent(doc, "touchmove", function(objEvent_){
+        addEvent(doc, "touchmove", function (objEvent_) {
             touchmoveFlag = true;
         });
         /*********************拖动触发事件设置结束**********************************/
         /*********************点击开始触发事件设置开始**********************************/
         // 在点击开始后获取点击坐标
-        addEvent(doc, "touchstart", function(objEvent_){
+        addEvent(doc, "touchstart", function (objEvent_) {
             // IE的event是全局变量，但w3c标准里需要由触发事件的对象来调用event
             objEvent_ = objEvent_ || win.event;
             srcElement = objBrowserInfo.getSrcElement(objEvent_);
@@ -2498,13 +2463,15 @@ _pt_sp_2.push('setEngageEnabled,1');
 
         /*********************点击开始触发事件设置结束**********************************/
         /*********************点击事件设置开始*********************************/
-        function clickPrc(){
-            if(srcElement==null){return false;}
-            var domNodeName = srcElement.nodeName.toLowerCase();
-            if(domNodeName == 'html'){
+        function clickPrc() {
+            if (srcElement == null) {
                 return false;
             }
-            var tmpStayTime = 0;// 定义页面停留时间
+            var domNodeName = srcElement.nodeName.toLowerCase();
+            if (domNodeName == 'html') {
+                return false;
+            }
+            var tmpStayTime = 0; // 定义页面停留时间
             //父节点是A的元素(如果本身是A标签,那就是自己)
             var parentAOfThisDom = objPt.parentA(srcElement);
             // if(typeof(parentAOfThisDom)=="object"){
@@ -2518,115 +2485,116 @@ _pt_sp_2.push('setEngageEnabled,1');
             srcElementAbsTop = currentOffset.top;
             //获取css 选择器路径
             var jqueryCssString = "";
-            try{
+            try {
                 jqueryCssString = objPt.getCssPath(srcElement);
-            }catch (err){}
+            } catch (err) {}
             // 如果没过点击冷却时间，则不计该次点击
             var recentTime = new Date().getTime();
             if ((recentTime - clickActionTime) < CLICKINTERVAL && domNodeName != "a") {
                 return false;
             }
-            if(typeof(parentAOfThisDom)=="object"){
+            if (typeof (parentAOfThisDom) == "object") {
                 // 通过onclick方法部署的pt高级监测代码如果被覆盖了，则在点击时触发原来的方法
                 var domOnclickContent = parentAOfThisDom.getAttribute("onclick");
                 // 节点里有onclick属性且onclick的静态代码里有pt的监测方法且被其他js动态覆盖
                 if (domOnclickContent && domOnclickContent.indexOf("_pt_sp_2") > -1 && parentAOfThisDom.onclick && parentAOfThisDom.onclick.toString().indexOf("_pt_sp_2") == -1) {
                     var onclickAry = domOnclickContent.split(";");
-                    for(var i = 0; i < onclickAry.length; i++){
+                    for (var i = 0; i < onclickAry.length; i++) {
                         // 处理setPVTag方法
-                        if(onclickAry[i].indexOf("setPVTag") > -1){
+                        if (onclickAry[i].indexOf("setPVTag") > -1) {
                             // 需要注意第一个参数前面会带着_pt_sp_2.push('，第三个参数末尾会带着')符号
-                            _pt_sp_2.push(onclickAry[i].replace("_pt_sp_2.push('","").replace('_pt_sp_2.push("','').replace("')","").replace('")',''));
+                            _pt_sp_2.push(onclickAry[i].replace("_pt_sp_2.push('", "").replace('_pt_sp_2.push("', '').replace("')", "").replace('")', ''));
                         }
-                        if(onclickAry[i].indexOf("setTrackEvent") > -1){
+                        if (onclickAry[i].indexOf("setTrackEvent") > -1) {
                             var onclickEventAry = onclickAry[i].split(",");
-                            if(onclickEventAry.length == 8){
+                            if (onclickEventAry.length == 8) {
                                 onclickEventAry.pop();
                             }
                             // 需要注意第一个参数前面会带着_pt_sp_2.push('，第三个参数末尾会带着')符号
-                            _pt_sp_2.push(onclickEventAry.join("").replace("_pt_sp_2.push('","").replace('_pt_sp_2.push("','').replace("')","").replace('")',''));
+                            _pt_sp_2.push(onclickEventAry.join("").replace("_pt_sp_2.push('", "").replace('_pt_sp_2.push("', '').replace("')", "").replace('")', ''));
                         }
                     }
                 }
 
-				//智能事件 - 开始，检测三种特殊的点击
-				var setAutoEventString = function () {
+                //智能事件 - 开始，检测三种特殊的点击
+                var setAutoEventString = function () {
 
-					var resultString = "";
-					
-					// 对svg中的a的href进行处理
-					var href = typeof parentAOfThisDom.href == 'object' ? parentAOfThisDom.href.animVal : parentAOfThisDom.href;
+                    var resultString = "";
 
-					var sendHref = objCommon.encode(href, false).replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/\./g, "%2E");
+                    // 对svg中的a的href进行处理
+                    var href = typeof parentAOfThisDom.href == 'object' ? parentAOfThisDom.href.animVal : parentAOfThisDom.href;
 
-					if (href == "") {
-						//href为空，或者PT_trackEvent没有打开的话不走智能事件
-					} else if (href.match(/mailto:/)) {
-						if (autoEventList["mailSendings"] == "true") {
-							resultString = "Mail,Mailto," + sendHref.toLowerCase() + ",0";
-						}
-					} else if (href.toLowerCase().match(/\.(msi|pdf|apk|ipa|jar|umd|jad|epub|mobi|iso|tar|zip|rar|gzip|gz|dmg|doc|docx|xls|xlsx|csv|ppt|pptx|exe|txt|pdf|key|numbers|pages)/)) {
-						if (autoEventList["fileDownloads"] == "true") {
-							var fileType = href.toLowerCase().match(/\.(msi|pdf|apk|ipa|jar|umd|jad|epub|mobi|iso|tar|zip|rar|gzip|gz|dmg|doc|docx|xls|xlsx|csv|ppt|pptx|exe|txt|pdf|key|numbers|pages)/)[1];
-							sendHref = sendHref.replace(/(^https?:\/\/)([^/]+)/i, function (word) {
-								return word.toLowerCase();
-							});
-							resultString = "Downloads," + fileType + "," + sendHref + ",0";
-						}
-					} else if (href.toLowerCase().indexOf("http") == 0) {
-						if (autoEventList["outboundLinks"] == "true") {
-							var isOutBoundLink = true;
-							for (var i = 0; i < domainSet.length; i++) {
-								if (href.toLowerCase().indexOf(domainSet[i]) > 0) {
-									isOutBoundLink = false;
-									break;
-								}
-							}
-							if (isOutBoundLink) {
-								sendHref = sendHref.replace(/(^https?:\/\/)([^/]+)/i, function (word) {
-									return word.toLowerCase();
-								});
-								resultString = "Outbound%20Links,Exit," + sendHref + ",0";
-							}
-						}
-					}
-					return resultString;
-				}();
-				
-                if(setAutoEventString!="" && PT_trackEvent){
+                    var sendHref = objCommon.encode(href, false).replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/\./g, "%2E");
+
+                    if (href == "") {
+                        //href为空，或者PT_trackEvent没有打开的话不走智能事件
+                    } else if (href.match(/mailto:/)) {
+                        if (autoEventList["mailSendings"] == "true") {
+                            resultString = "Mail,Mailto," + sendHref.toLowerCase() + ",0";
+                        }
+                    } else if (href.toLowerCase().match(/\.(msi|pdf|apk|ipa|jar|umd|jad|epub|mobi|iso|tar|zip|rar|gzip|gz|dmg|doc|docx|xls|xlsx|csv|ppt|pptx|exe|txt|pdf|key|numbers|pages)/)) {
+                        if (autoEventList["fileDownloads"] == "true") {
+                            var fileType = href.toLowerCase().match(/\.(msi|pdf|apk|ipa|jar|umd|jad|epub|mobi|iso|tar|zip|rar|gzip|gz|dmg|doc|docx|xls|xlsx|csv|ppt|pptx|exe|txt|pdf|key|numbers|pages)/)[1];
+                            sendHref = sendHref.replace(/(^https?:\/\/)([^/]+)/i, function (word) {
+                                return word.toLowerCase();
+                            });
+                            resultString = "Downloads," + fileType + "," + sendHref + ",0";
+                        }
+                    } else if (href.toLowerCase().indexOf("http") == 0) {
+                        if (autoEventList["outboundLinks"] == "true") {
+                            var isOutBoundLink = true;
+                            for (var i = 0; i < domainSet.length; i++) {
+                                if (href.toLowerCase().indexOf(domainSet[i]) > 0) {
+                                    isOutBoundLink = false;
+                                    break;
+                                }
+                            }
+                            if (isOutBoundLink) {
+                                sendHref = sendHref.replace(/(^https?:\/\/)([^/]+)/i, function (word) {
+                                    return word.toLowerCase();
+                                });
+                                resultString = "Outbound%20Links,Exit," + sendHref + ",0";
+                            }
+                        }
+                    }
+                    return resultString;
+                }();
+
+                if (setAutoEventString != "" && PT_trackEvent) {
                     // 在生成事件包的内容后，将其放入setTrackEvent的API里发送出去
-                    _pt_sp_2.push('setTrackEvent,'+setAutoEventString+',false');
+                    _pt_sp_2.push('setTrackEvent,' + setAutoEventString + ',false');
                 }
                 //智能事件 - 结束
             }
 
-            var customEventContainer;//当前元素能够触发的事件
+            var customEventContainer; //当前元素能够触发的事件
             // 自定义事件处理 - 开始
-            (function(){
+            (function () {
                 //如果form元素触发event 的方式是focus,需要检测当前点击元素是否是form元素
-                if(formElementTriggerEventType=='focus'){
-                    for(var j=0;j<allFocusType.length;j++){
-                        if(allFocusType[j]==domNodeName){
+                if (formElementTriggerEventType == 'focus') {
+                    for (var j = 0; j < allFocusType.length; j++) {
+                        if (allFocusType[j] == domNodeName) {
                             return;
                         }
                     }
                 }
                 //检查srcElement是否定义事件
-                customEventContainer= checkEventList(srcElement,parentAOfThisDom);
+                customEventContainer = checkEventList(srcElement, parentAOfThisDom);
             })();
-            // 自定义事件处理 - 结束
+            //中国日报有一个点不发送，这种写在公共部分的写法很可耻，但是催的太紧了。代码要面相扩展，不要面相修改。
+            if (sid == "3bfec6ad" && navigator.userAgent.indexOf("MSIE") > -1 && jqueryCssString == ".focus-menu .current ") {
+                return;
+            }
+            //var domNodeName = srcElement.nodeName.toLowerCase();
             var oneOrTwoForSent = 0; // 该变量是用来标识交互元素-1、子节点-2、其他类型节点-0
             if (domNodeName == "a" || domNodeName == "input" || domNodeName == "select" || domNodeName == "embed" || domNodeName == "object" || domNodeName == "textarea" || domNodeName == "button") {
-                oneOrTwoForSent=1;
-            }
-            else if(srcElement.onclick){
-                oneOrTwoForSent=1;
-            }
-            else if((srcElement.childNodes.length==0)||(srcElement.childNodes.length==1 && srcElement.childNodes[0].nodeType!=1 )){
-                oneOrTwoForSent=2;
-            }
-            else {
-                oneOrTwoForSent=0;
+                oneOrTwoForSent = 1;
+            } else if (srcElement.onclick) {
+                oneOrTwoForSent = 1;
+            } else if ((srcElement.childNodes.length == 0) || (srcElement.childNodes.length == 1 && srcElement.childNodes[0].nodeType != 1)) {
+                oneOrTwoForSent = 2;
+            } else {
+                oneOrTwoForSent = 0;
             }
             var nodeId = oneOrTwoForSent + iframeValue[2] + objCommon.encode(jqueryCssString, false).replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/\./g, "%2E");
             // 重新读取cookies，因为可能被其他的页面更新
@@ -2665,7 +2633,7 @@ _pt_sp_2.push('setEngageEnabled,1');
             if (heatmapFlag) {
                 // 如果开启了热图功能
                 clearInterval(window["_pt_hb_interval"]);
-                window["_pt_hb_interval"] = setInterval(function() {
+                window["_pt_hb_interval"] = setInterval(function () {
                     heartBeatPrc();
                 }, HBTIMES);
                 hbCount = 0;
@@ -2680,83 +2648,85 @@ _pt_sp_2.push('setEngageEnabled,1');
             } else if ((rotationFlag != 1) && (tmpYMax > yMaxM)) {
                 yMaxM = tmpYMax;
             }
-
             var ocData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
+
             var id = sid + "." + uid + "." + visitID + "." + pageID + "." + pvEventID;
-            var ocstat = +(mouseCoo.x + iframeValue[0]) * rotationFlag + "." + (mouseCoo.y + iframeValue[1]) * rotationFlag 
-                + "." + objBrowserInfo.getViewWidth() + "." + objBrowserInfo.getViewHeight()
-                + "." + nodeId + ".0"
-                + "." + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag))
-                + "." + ((rotationFlag == 1) ? yMaxP : yMaxM * -1)
-                + "." + tmpStayTime
-                + "." + (srcElementAbsLeft + iframeValue[0]) + "." + (srcElementAbsTop + iframeValue[1]);
+            var ocstat = +(mouseCoo.x + iframeValue[0]) * rotationFlag  + "." + (mouseCoo.y + iframeValue[1]) * rotationFlag  +
+                "." + objBrowserInfo.getViewWidth() + "." + objBrowserInfo.getViewHeight() +
+                "." + nodeId + ".0" +
+                "." + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
+                "." + ((rotationFlag == 1) ? yMaxP : yMaxM * -1) +
+                "." + tmpStayTime +
+                "." + (srcElementAbsLeft + iframeValue[0]) + "." + (srcElementAbsTop + iframeValue[1]);
             var ptif = terminalType + '';
 
             var customEventObj = buildCustomEventObj(customEventContainer);
 
-            var tmpMsg='';
-            if(customEventObj){//合并的te包
-                tmpMsg = "?id="+id;
-                if(customEventObj.stat){//旧版事件
-                    tmpMsg+=("&stat="+customEventObj.stat);
+            var tmpMsg = '';
+            if (customEventObj) { //合并的te包
+                tmpMsg = "?id=" + id;
+                if (customEventObj.stat) { //旧版事件
+                    tmpMsg += ("&stat=" + customEventObj.stat);
                     ocData.addPropery("stat",customEventObj.stat);
                 }
-                if(customEventObj.eid) {//新版事件
-                    tmpMsg+=("&eid="+customEventObj.eid);
+                if (customEventObj.eid) { //新版事件
+                    tmpMsg += ("&eid=" + customEventObj.eid);
                     ocData.addPropery("eid",customEventObj.eid);
                 }
-                if(heatmapFlag){//带点击的te包
-                    tmpMsg+=("&ocstat="+ocstat);
+                if (heatmapFlag) { //带点击的te包
+                    tmpMsg += ("&ocstat=" + ocstat);
                     ocData.addPropery("ocstat",ocstat);
                 }
                 pvNum = +pvNum + 1;
+
                 ocData.addPropery("pvn",pvNum);
                 ocData.addPropery("ptif",ptif);
-                tmpMsg+=("&pvn=" + pvNum);
-                tmpMsg+=("&ptif="+ptif);
+
+                tmpMsg += ("&pvn=" + pvNum);
+                tmpMsg += ("&ptif=" + ptif);
+
                 if(!objPt.sendPost(teURL,ocData.getJSONRet())){
                     objPt.sendMsgByScript(teURL + tmpMsg);
                 }
 
-            }else if(heatmapFlag){
+
+            } else if (heatmapFlag) {
                 ocData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
                 ocData.addPropery("stat",ocstat);
                 ocData.addPropery("ptif",ptif);
 
-                tmpMsg = "?id="+id+"&stat="+ocstat+"&ptif="+ptif;
+                tmpMsg = "?id=" + id + "&stat=" + ocstat + "&ptif=" + ptif;
                 // 清空元素坐标
                 srcElementAbsLeft = 0;
                 srcElementAbsTop = 0;
                 iframeValue = [0, 0, ""];
-                // 发送oc包
+
                 if(!objPt.sendPost(ocURL,ocData.getJSONRet())){
                     // 发送oc包
                     objPt.sendMsgByScript(ocURL + tmpMsg);
                 }
+               
             }
         }
-		
-		
-		(function () {
-		    // 执行用户在加载采集脚本之前定义的反常的setCustomVarV2自定义变量
-		    for (var i = 0, len = CustomVarCache.length; i < len; i++) {
-		        window[gParam].push('setCustomVarV2', CustomVarCache[i]);
-		    }
 
-		    // 执行用户设置的上报用户信息的请求
-		    for (var i = 0, len = UserCache.length; i < len; i++) {
-		        window[gParam].push('setUser', UserCache[i]);
-		    }
+        (function () {
+            // 执行用户在加载采集脚本之前定义的反常的setCustomVarV2自定义变量
+            for (var i = 0, len = CustomVarCache.length; i < len; i++) {
+                window[gParam].push('setCustomVarV2', CustomVarCache[i]);
+            }
 
-		    for (var i = 0, len = ECCache.length; i < len; i++) {
-		        window[gParam].push('setEC', ECCache[i]);
-		    }
-		})()
-		
-		
-		
+            // 执行用户设置的上报用户信息的请求
+            for (var i = 0, len = UserCache.length; i < len; i++) {
+                window[gParam].push('setUser', UserCache[i]);
+            }
+
+            for (var i = 0, len = ECCache.length; i < len; i++) {
+                window[gParam].push('setEC', ECCache[i]);
+            }
+        })()
+
         var timer;
-        var locked=false;
+        var locked = false;
         addEvent(doc, "click", function (objEvent_) {
             // IE的event是全局变量，但w3c标准里需要由触发事件的对象来调用event
             objEvent_ = objEvent_ || win.event;
@@ -2764,19 +2734,18 @@ _pt_sp_2.push('setEngageEnabled,1');
             // 取得点击的相对坐标
             mouseCoo = objBrowserInfo.getMouseRC1(objEvent_);
             // 超出页面内容范围，不计统计
-            if(objBrowserInfo.getPageHeight()>0){
+            if (objBrowserInfo.getPageHeight() > 0) {
                 if (mouseCoo.x <= 0 || mouseCoo.y <= 0 || mouseCoo.x > +objBrowserInfo.getPageWidth() || mouseCoo.y > +objBrowserInfo.getPageHeight())
                     return;
             }
             // 获取触发事件的dom元素对象
             srcElement = objBrowserInfo.getSrcElement(objEvent_);
-            if(!locked){
-                clickPrc();  
+            if (!locked) {
+                clickPrc();
             }
-                          
         });
-        addEvent(doc, "touchend", function(objEvent_){
-            var tmpStayTime = 0;// 定义页面停留时间
+        addEvent(doc, "touchend", function (objEvent_) {
+            var tmpStayTime = 0; // 定义页面停留时间
             // 如果是拖动的话，不做点击处理
             if (touchmoveFlag) {
                 touchmoveFlag = false;
@@ -2790,28 +2759,29 @@ _pt_sp_2.push('setEngageEnabled,1');
                 return;
 
             clickPrc();
-            locked=true;
-            timer&&clearTimeout(timer);
-            timer=setTimeout(function(){
-                locked=false;
-            },500);
+            locked = true;
+            timer && clearTimeout(timer);
+            timer = setTimeout(function () {
+                locked = false;
+            }, 500);
         });
         /*********************滚动事件设置开始*********************************/
         // 初始化当前时间，当前滚动条位置以及当前滚动记录串
-        var timeB = visitTime, timeN, tmpTime = 0;
-        addEvent(win, "scroll", function(objEvent_){
+        var timeB = visitTime,
+            timeN, tmpTime = 0;
+        addEvent(win, "scroll", function (objEvent_) {
             function isScrolling() {
-                var scrolling =true;
+                var scrolling = true;
                 //滚动到头和尾的时候不发送包（禅道TASK 241）
 
-                if(doc.body.clientHeight==0){
-                    scrolling= false;
-                } else if(objBrowserInfo.getScrollY()<=1){//有的浏览器在顶部的时候此值为1
+                if (doc.body.clientHeight == 0) {
+                    scrolling = false;
+                } else if (objBrowserInfo.getScrollY() <= 1) { //有的浏览器在顶部的时候此值为1
                     //滚到顶部
-                    scrolling= false;
-                }else if(objBrowserInfo.getScrollY()+objBrowserInfo.getBrowserHeight()+1>=objBrowserInfo.getPageHeight()){
+                    scrolling = false;
+                } else if (objBrowserInfo.getScrollY() + objBrowserInfo.getBrowserHeight() + 1 >= objBrowserInfo.getPageHeight()) {
                     //滚到底部
-                    scrolling= false;
+                    scrolling = false;
                 }
                 return scrolling;
             }
@@ -2863,7 +2833,7 @@ _pt_sp_2.push('setEngageEnabled,1');
             // 重置心跳事件
             if (heatmapFlag) {
                 clearInterval(window["_pt_hb_interval"]);
-                window["_pt_hb_interval"] = setInterval(function() {
+                window["_pt_hb_interval"] = setInterval(function () {
                     heartBeatPrc();
                 }, HBTIMES);
                 hbCount = 0;
@@ -2878,16 +2848,17 @@ _pt_sp_2.push('setEngageEnabled,1');
             } else if ((rotationFlag != 1) && (tmpYMax > yMaxM)) {
                 yMaxM = tmpYMax;
             }
-            if(isScrolling()){
+            if (isScrolling()) {
                 // 发送报文
                 if (heatmapFlag) {
+                    //objBrowserInfo.getViewHeight()值大于1500时，取1500（sid=4255b04a的客户，部分os包中，vh值大于6000，FB-246）
                     var osData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
                     osData.addPropery("stat",((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
                     "." + ((rotationFlag == 1) ? yMaxP : yMaxM * -1) +
                     "." + (objBrowserInfo.getViewHeight() > 1500 ? 1500 : objBrowserInfo.getViewHeight()) + "." + tmpStayTime);
 
                     osData.addPropery("ptif",terminalType + '');
-                    //objBrowserInfo.getViewHeight()值大于1500时，取1500（sid=4255b04a的客户，部分os包中，vh值大于6000，FB-246）
+
                     if(!objPt.sendPost(osURL,osData.getJSONRet())){
                         var tmp = "?id=" + sid + "." + uid + "." + visitID + "." + pageID + "." + pvEventID +
                         "&stat=" + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
@@ -2906,20 +2877,21 @@ _pt_sp_2.push('setEngageEnabled,1');
         //跨域页面超时后，重置a标签链接，删除私有字段，恢复为原页面的链接
         function resetLinkUrl() {
             var links = doc.getElementsByTagName("a");
-            var pt_str = "", pt_tmpHref, tmpUrl;
-            for (var l=0; l<links.length; l++) {
+            var pt_str = "",
+                pt_tmpHref, tmpUrl;
+            for (var l = 0; l < links.length; l++) {
                 pt_tmpHref = links[l].getAttribute("href");
-                if(pt_tmpHref){
+                if (pt_tmpHref) {
                     pt_str = pt_tmpHref.match(/[\#|\?|\&]_pt_link=[^#|^&]*/);
                     if (pt_str) {
                         pt_tmpHref = pt_tmpHref.split(pt_str);
                         tmpUrl = pt_tmpHref[0] + (pt_tmpHref[1] ? pt_tmpHref[1] : "");
-                        links[l].setAttribute("href",tmpUrl);
+                        links[l].setAttribute("href", tmpUrl);
                     }
                 }
             }
         }
-        window["_pt_hb_interval"] = setInterval(function() {
+        window["_pt_hb_interval"] = setInterval(function () {
             heartBeatPrc();
         }, HBTIMES);
         // 发送心跳包
@@ -2935,7 +2907,7 @@ _pt_sp_2.push('setEngageEnabled,1');
             // 判断当前页面是否超时，如果静默时间超过一定时间，则判断该访问结束，并将最后五分钟去掉
             if (recentTime - pageActionTime > (SILENTTIMES + +HBTIMES)) {
                 // 超时
-                if (multiDomainFlag) {	//http://jira.ptmind.com/browse/FB-601|增加sid=4feafb6a的跨域处理[zhaopengjun 2015-03-26]
+                if (multiDomainFlag && (sid == "519aa7cd" || sid == "4d304c7a")) {
                     resetLinkUrl();
                 }
                 clearInterval(window["_pt_hb_interval"]);
@@ -2948,7 +2920,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                     return;
                 }
             }
-            hbCount++;// 心跳包计数自增
+            hbCount++; // 心跳包计数自增
             // 阅读线
             var tmpYMax = objBrowserInfo.getYMax();
             rotationFlag = ((win.orientation == undefined || win.orientation == 0) ? 1 : -1)
@@ -2957,20 +2929,23 @@ _pt_sp_2.push('setEngageEnabled,1');
             } else if ((rotationFlag != 1) && (tmpYMax > yMaxM)) {
                 yMaxM = tmpYMax;
             }
+
             var hbData = new BaseStruct(sid,uid,visitID,pageID,pvEventID);
             hbData.addPropery("stat",((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
             "." + ((rotationFlag == 1) ? yMaxP : (yMaxM * -1)) +
             "." + objBrowserInfo.getViewHeight() + "." + ((toFlag == 1) ? (-1 * SILENTTIMES + 1) : HBTIMES));
             hbData.addPropery("ptif",terminalType + '');
+
             if(!objPt.sendPost(hbURL,hbData.getJSONRet())){
                 // 发送报文
-                var tmp = "?id=" + sid + "." + uid + "." + visitID + "." + pageID + "." + pvEventID
-                    + "&stat=" + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag))
-                    + "." + ((rotationFlag == 1) ? yMaxP : (yMaxM * -1))
-                    + "." + objBrowserInfo.getViewHeight() + "." + ((toFlag == 1) ? (-1 * SILENTTIMES + 1) : HBTIMES)
-                    + "&ptif=" + terminalType;
-                objPt.sendMsg(hbURL+tmp);
+                var tmp = "?id=" + sid + "." + uid + "." + visitID + "." + pageID + "." + pvEventID +
+                    "&stat=" + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
+                    "." + ((rotationFlag == 1) ? yMaxP : (yMaxM * -1)) +
+                    "." + objBrowserInfo.getViewHeight() + "." + ((toFlag == 1) ? (-1 * SILENTTIMES + 1) : HBTIMES) +
+                    "&ptif=" + terminalType;
+                objPt.sendMsg(hbURL + tmp);
             }
+
         }
         /********************滚动事件(计停留时长)设置结束**************************/
         return false;
@@ -2978,44 +2953,46 @@ _pt_sp_2.push('setEngageEnabled,1');
 
     function getABTestString(pure) {
         var tmpABTestStr = "";
-        if(optFlag){
-            switch (optType){
-                case 'GoogleOptimize'://用户开启 GoogleOptimize AB测试，发包增加以下字段
-                    if(window.gaData && window.gaData.expId && window.gaData.expVar){
-                        tmpABTestStr += gaData.expId+'|p|'+'|p|'+gaData.expVar+'|p|'+'|p|'+optType;
+        if (optFlag) {
+            switch (optType) {
+                case 'GoogleOptimize': //用户开启 GoogleOptimize AB测试，发包增加以下字段
+                    if (window.gaData && window.gaData.expId && window.gaData.expVar) {
+                        tmpABTestStr += gaData.expId + '|p|' + '|p|' + gaData.expVar + '|p|' + '|p|' + optType;
                     }
                     break;
                 case 'OptimizelyX':
                     // 存在optimizely，且其包含get方法
-                    if(typeof(window["optimizely"]) === "object" && typeof window["optimizely"]["get"] === "function"){
+                    if (typeof (window["optimizely"]) === "object" && typeof window["optimizely"]["get"] === "function") {
                         // 获取状态
                         var expState = window["optimizely"].get("state");
-                        if(expState) {
+                        if (expState) {
                             // 获取所有活跃实验的ID数组
                             var activeExpIds = expState.getActiveExperimentIds();
-                            for(var d = 0; d < activeExpIds.length; d++) {
+                            for (var d = 0; d < activeExpIds.length; d++) {
                                 var expId = activeExpIds[d], // 实验ID
-                                    expName = expState.getExperimentStates({"isActive":true})[expId]["experimentName"] || "",  // 实验名称
+                                    expName = expState.getExperimentStates({
+                                        "isActive": true
+                                    })[expId]["experimentName"] || "", // 实验名称
                                     expVariation = expState.getVariationMap()[expId],
-                                    expVid = expVariation["id"],// 版本ID
-                                    expVname = expVariation["name"] || "";// 版本名称
+                                    expVid = expVariation["id"], // 版本ID
+                                    expVname = expVariation["name"] || ""; // 版本名称
 
                                 tmpABTestStr += (d == 0) ? "" : "|o|";
-                                tmpABTestStr += expId + "|p|" + expName.substr(0,100) + "|p|" + expVid+"|p|" + expVname.substr(0,100);
+                                tmpABTestStr += expId + "|p|" + expName.substr(0, 100) + "|p|" + expVid + "|p|" + expVname.substr(0, 100);
                                 tmpABTestStr += "|p|" + optType;
                             }
                         }
                     }
                     break;
-                case 'Optimizely'://用户开启 optimizely AB测试，发包增加以下字段
+                case 'Optimizely': //用户开启 optimizely AB测试，发包增加以下字段
                 default: // 默认为"Optimizely"
-                    if(typeof(optimizely) == "object"){
+                    if (typeof (optimizely) == "object") {
                         var tpidAry = optimizely["activeExperiments"];
                         if (tpidAry && tpidAry.length > 0) {
-                            for (var d=0; d<tpidAry.length; d++) {
+                            for (var d = 0; d < tpidAry.length; d++) {
                                 tmpABTestStr += d == 0 ? "" : "|o|";
-                                tmpABTestStr += tpidAry[d]+"|p|"+optimizely["data"]["experiments"][tpidAry[d]].name.substr(0,100)+"|p|"+optimizely["variationIdsMap"][tpidAry[d]][0]+"|p|"+optimizely["variationNamesMap"][tpidAry[d]].substr(0,100);
-                                tmpABTestStr += "|p|"+optType;
+                                tmpABTestStr += tpidAry[d] + "|p|" + optimizely["data"]["experiments"][tpidAry[d]].name.substr(0, 100) + "|p|" + optimizely["variationIdsMap"][tpidAry[d]][0] + "|p|" + optimizely["variationNamesMap"][tpidAry[d]].substr(0, 100);
+                                tmpABTestStr += "|p|" + optType;
                             }
                         }
                     }
@@ -3036,9 +3013,9 @@ _pt_sp_2.push('setEngageEnabled,1');
                     //全手动模式：满足条件1、包含onclick属性且值中有pt_domain字段；
                     var lowerCaseHref = tmpHref.toLowerCase();
                     for (var y = 0; y < domainSet.length; y++) {
-                        if (lowerCaseHref.indexOf(domainSet[y]) > -1 && (tmpHref.indexOf(loc.hostname) < 0 || tmpHref.indexOf(loc.hostname) > lowerCaseHref.indexOf(domainSet[y]))) {
+                        if (lowerCaseHref.indexOf(domainSet[y]) > -1 && (tmpHref.indexOf(location.hostname) < 0 || tmpHref.indexOf(location.hostname) > lowerCaseHref.indexOf(domainSet[y]))) {
                             // 如果当前的href包含在跨域域名集内，并且不包含当前主机名或当前主机名在跨域域名的后面[zhaopengjun 2015-03-26]
-                            links[x].setAttribute('href',createLinkUrl(tmpHref));
+                            links[x].setAttribute('href', createLinkUrl(tmpHref));
                             break;
                         }
                     }
@@ -3051,9 +3028,9 @@ _pt_sp_2.push('setEngageEnabled,1');
                     //半手动模式：满足条件1、href值以http开头；2、href值长度小于900。
                     var lowerCaseHref = tmpHref.toLowerCase();
                     for (var y = 0; y < domainSet.length; y++) {
-                        if (lowerCaseHref.indexOf(domainSet[y]) > -1 && (tmpHref.indexOf(loc.hostname) < 0 || tmpHref.indexOf(loc.hostname) > lowerCaseHref.indexOf(domainSet[y]))) {
+                        if (lowerCaseHref.indexOf(domainSet[y]) > -1 && (tmpHref.indexOf(location.hostname) < 0 || tmpHref.indexOf(location.hostname) > lowerCaseHref.indexOf(domainSet[y]))) {
                             // 如果当前的href包含在跨域域名集内，并且不包含当前主机名或当前主机名在跨域域名的后面[zhaopengjun 2015-03-26]
-                            links[x].setAttribute('href',createLinkUrl(tmpHref));
+                            links[x].setAttribute('href', createLinkUrl(tmpHref));
                             break;
                         }
                     }
@@ -3066,14 +3043,15 @@ _pt_sp_2.push('setEngageEnabled,1');
         var n = targetUrl.split("#");
         cookieOfPt.readCookies();
         if (cookieOfPt.cookiesValue) {
-            var linkTag = cookieOfPt.getValueFromCookies("uid") + "."
-                + cookieOfPt.getValueFromCookies("nid") + "."
-                + cookieOfPt.getValueFromCookies("vid") + "."
-                + cookieOfPt.getValueFromCookies("sact") + "."
-                + cookieOfPt.getValueFromCookies("vn") + "."
-                + cookieOfPt.getValueFromCookies("pvn") + "."
+            var linkTag = cookieOfPt.getValueFromCookies("uid") + "." +
+                cookieOfPt.getValueFromCookies("nid") + "." +
+                cookieOfPt.getValueFromCookies("vid") + "." +
+                cookieOfPt.getValueFromCookies("sact") + "." +
+                cookieOfPt.getValueFromCookies("vn") + "." +
+                cookieOfPt.getValueFromCookies("pvn") + "."
                 //+ cookieOfPt.getValueFromCookies("vr").replace(/\./g, "*_*");
-                + (  (win.localStorage && (typeof(win.localStorage.removeItem)=="function") && win.localStorage.getItem(profileID)) ? win.localStorage.getItem(profileID).replace(/\./g, "*_*").replace(/\?/g, "*_wh_*") : "");
+                +
+                ((win.localStorage && (typeof (win.localStorage.removeItem) == "function") && win.localStorage.getItem(profileID)) ? win.localStorage.getItem(profileID).replace(/\./g, "*_*").replace(/\?/g, "*_wh_*") : "");
             if (n.length == 1) {
                 // 后面没有锚点，则直接加上锚点参数
                 targetUrl += "#_pt_link=" + linkTag;
@@ -3085,10 +3063,11 @@ _pt_sp_2.push('setEngageEnabled,1');
         return targetUrl;
     }
     /*********************模拟重登录处理开始**********************************/
-    function revisitPrc(type,sentPage,sentPageID) {
+    function revisitPrc(type, sentPage, sentPageID) {
         var pageID_ = sentPageID ? sentPageID : pageID;
-        var page_ = sentPage ? sentPage: page;
-        var recent = new Date(), recentTime = recent.getTime();//定义的recentTimeDate变量没有用到，所以给删除掉了
+        var page_ = sentPage ? sentPage : page;
+        var recent = new Date(),
+            recentTime = recent.getTime(); //定义的recentTimeDate变量没有用到，所以给删除掉了
         if (type != "vpv") {
             if (recentTime - pageActionTime < 10000) {
                 return;
@@ -3125,6 +3104,8 @@ _pt_sp_2.push('setEngageEnabled,1');
         // 更新cookies
         cookieOfPt.writeCookies();
         //======================cookies处理结束==========================================
+        //生成URL传参串
+        // 网站ID+用户ID+页面+访次ID+页面访问ID
         var pnvData = new BaseStruct(sid,uid,visitID,pageID_,pvEventID);
         pnvData.addPropery("stat",((type == "pn") ? ((+visitNum == 0) ? 1 : +visitNum) : pvNum) + "." + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
         "." + yMax * rotationFlag + "." + objBrowserInfo.getViewHeight() +
@@ -3140,33 +3121,34 @@ _pt_sp_2.push('setEngageEnabled,1');
         pnvData.addPropery("ptif",terminalType + objBrowserInfo.getSysInfo());
         getABTestString(true) && pnvData.addPropery("op",getABTestString(true));
 
-        //生成URL传参串
-        // 网站ID+用户ID+页面+访次ID+页面访问ID
-        ptq = "?id=" + sid + "." + uid + "." + visitID + "." + pageID_ + "." + pvEventID
-            + "&stat=" + ((type == "pn") ? ((+visitNum == 0) ? 1 : +visitNum) : pvNum) + "." + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag))
-            + "." + yMax * rotationFlag + "." + objBrowserInfo.getViewHeight()
-            + "." + 0
-            + "." + 0
-            + ((type == "pn") ? "" : ("." + visitNum))
-            + "&ref="
-            + ((type == "pn") ? "" : ("&vref=" + objCommon.encode(visitRef, false)))
-            + "&p=" + objCommon.encode(page_.replace(/&/g, "*&*"), false) + "&tl=" + title
-            + (adParamStr ? ("&cad=" + adParamStr) : "")
-            + "&ptif=" + terminalType;
+        ptq = "?id=" + sid + "." + uid + "." + visitID + "." + pageID_ + "." + pvEventID +
+            "&stat=" + ((type == "pn") ? ((+visitNum == 0) ? 1 : +visitNum) : pvNum) + "." + ((rotationFlag == 1) ? objBrowserInfo.getScrollY() : ((objBrowserInfo.getScrollY() + 1) * rotationFlag)) +
+            "." + yMax * rotationFlag + "." + objBrowserInfo.getViewHeight() +
+            "." + 0 +
+            "." + 0 +
+            ((type == "pn") ? "" : ("." + visitNum)) +
+            "&ref=" +
+            ((type == "pn") ? "" : ("&vref=" + objCommon.encode(visitRef, false))) +
+            "&p=" + objCommon.encode(page_.replace(/&/g, "*&*"), false) + "&tl=" + title +
+            (adParamStr ? ("&cad=" + adParamStr) : "") +
+            "&ptif=" + terminalType;
         ptq += objBrowserInfo.getSysInfo();
-        ptq +=getABTestString();
-        for(var i=0;i<customVarList.length;i++){
-            if(customVarList[i][2]=="cookie"){
+        ptq += getABTestString();
+        for (var i = 0; i < customVarList.length; i++) {
+            if (customVarList[i][2] == "cookie") {
                 var cookieOfCustomVar = objHttpCookies.getValue(customVarList[i][1]);
-                if(cookieOfCustomVar){
-                    ptq += "&"+customVarList[i][0]+"="+objCommon.encode(cookieOfCustomVar,false);
+                if (cookieOfCustomVar) {
+                    ptq += "&" + customVarList[i][0] + "=" + objCommon.encode(cookieOfCustomVar, false);
+
                     pnvData.addPropery(customVarList[i][0],objCommon.encode(cookieOfCustomVar, false));
                 }
-            }else{
-                ptq += "&"+customVarList[i][0]+"="+objCommon.encode(customVarList[i][1],false);
+            } else {
+                ptq += "&" + customVarList[i][0] + "=" + objCommon.encode(customVarList[i][1], false);
+
+                pnvData.addPropery(customVarList[i][0],objCommon.encode(customVarList[i][1], false));
             }
         }
-
+        //}
         if(PageViewVar) {
             ptq += '&pvid=' + encodeURIComponent(PageViewVar);
             pnvData.addPropery("pvid",encodeURIComponent(PageViewVar));
@@ -3174,9 +3156,9 @@ _pt_sp_2.push('setEngageEnabled,1');
         if(!objPt.sendPost(type=="pn"?pnURL:pvURL,pnvData.getJSONRet())){
             objPt.sendMsg(((type == "pn") ? pnURL : pvURL) + ptq);
         }
-        //}
+        
         toFlag = 0;
-        if (multiDomainFlag && type != "vpv") {	//http://jira.ptmind.com/browse/FB-601|增加sid=4feafb6a的跨域处理[zhaopengjun 2015-03-26]
+        if (multiDomainFlag && type != "vpv" && (sid == "519aa7cd" || sid == "4d304c7a")) {
             whandler();
         }
     }
@@ -3186,8 +3168,9 @@ _pt_sp_2.push('setEngageEnabled,1');
         //try {
         if (ary.length > 0) {
             for (var i = 0, len = ary.length; i < len; i++) {
-                if (ary[i] && typeof ary[i] === 'object') {
-                    var pre = ary[i - 1];
+                if(ary[i] && typeof ary[i] === 'object'){
+                    var pre = ary[i-1];
+
                     if (pre) {
                         switch (pre) {
                             case "setUser":
@@ -3201,22 +3184,21 @@ _pt_sp_2.push('setEngageEnabled,1');
                                 break;
                             case "setCustomVarV2":
                                 CustomVarCache.push(ary[i]);
-                                break;
+                            break;
                         }
                         ary[i] = null;
                         continue;
                     }
                 }
-				
                 var tmpIndex = ary[i].indexOf(",");
                 //2016.3.25凌晨3点多发现一个莫名recordsource，放到了ary里，得先注释掉下面的判断
                 //if (tmpIndex < 0){
                 //console.log("ptmind_debug:  "+"function definePrc tmpIndex<0");
                 //return false;
                 //}
-                if (!execPrc(ary[i].slice(0, tmpIndex), ary[i].slice(tmpIndex + 1))) {	
+                if (!execPrc(ary[i].slice(0, tmpIndex), ary[i].slice(tmpIndex + 1))) {
                     return false;
-				}
+                }
             }
         }
         return true;
@@ -3224,15 +3206,13 @@ _pt_sp_2.push('setEngageEnabled,1');
         //    return false;
         //}
     }
+
     function execPrc(functionStr, paraStr) {
-        if (!paraStr){        // 如果参数为空则报错退出
+        if (!paraStr) { // 如果参数为空则报错退出
             //console.log("ptmind_debug:  "+"Parameter is empty");
             return false;
         }
         switch (functionStr) {
-            case "setOuterIframeEnabled":
-                enableOutIframe = paraStr == "1";
-                break;
             case "setEngageEnabled":
                 enableEngage = paraStr == "1";
                 break;
@@ -3240,97 +3220,99 @@ _pt_sp_2.push('setEngageEnabled,1');
                 serverNum = paraStr ? +paraStr : 0;
 
                 //重新生成发送地址
-                toURL = (sid == '6c75a350') ? (protocol + 'rtcollect.ptengine.jp') : (protocol + serverList[serverNum]), //针对乐天证券sid迁移至rtcollect.ptengine.jp [2014-08-05] http://jira.ptmind.com/browse/FB-116
-                pnURL = toURL + "/pn", // 处理页面新访问的URL
-                pvURL = toURL + "/pv", // 处理页面非新访问的URL
-                ocURL = toURL + "/oc", // 处理点击事件的URL
-                osURL = toURL + "/os", // 处理滚动事件的URL
-                hbURL = toURL + "/hb", // 处理心跳事件的URL
-                teURL = toURL + "/te"; // 处理用户自定义事件
+                toURL = protocol + serverList[serverNum],
+                    pnURL = toURL + "/pn", // 处理页面新访问的URL
+                    pvURL = toURL + "/pv", // 处理页面非新访问的URL
+                    ocURL = toURL + "/oc", // 处理点击事件的URL
+                    osURL = toURL + "/os", // 处理滚动事件的URL
+                    hbURL = toURL + "/hb", // 处理心跳事件的URL
+                    teURL = toURL + "/te"; // 处理用户自定义事件
                 break;
-            // 设定广告参数
+                // 设定广告参数
             case "setAdParam":
                 company = "cellant";
                 paraStr = paraStr.replace(/^\|*/, "").replace(/\|*$/, "");
                 adParamAry = paraStr ? paraStr.split("|") : "";
                 break;
-            //设置广告参数（上面哪个不是通用的广告参数，而是特殊对应）
+                //设置广告参数（上面哪个不是通用的广告参数，而是特殊对应）
             case "setCamParam":
                 camParamAry = paraStr.split(",");
                 break;
-            // 设定URL虚拟参数
+                // 设定URL虚拟参数
             case "setURL":
                 urlMark = paraStr;
                 break;
-            // 设定是否忽略广告(utm)参数
+                // 设定是否忽略广告(utm)参数
             case "setIgnoreCampaign":
                 ignoreCampaign = paraStr.toLowerCase() == "true";
                 break;
-            // 设定虚拟url
+                // 设定虚拟url
             case "setVPV":
                 //vUrl = initPage + "#" + paraStr.toLowerCase().split(",")[0];
                 //if (paraStr.toLowerCase().split(",").length > 1 && paraStr.toLowerCase().split(",")[1] == "replace") {
                 vUrl = paraStr.toLowerCase().split(",")[0];
                 //}
                 break;
-            // 设定虚拟url
+                // 设定虚拟url
             case "setVPT":
                 vTitle = paraStr;
                 break;
-            // 设定账户名
+                // 设定账户名
             case "setAccount":
                 sid = paraStr.toLowerCase();
                 break;
-            // 设定账户名
+                // 设定账户名
             case "setSID":
                 sid = paraStr.toLowerCase();
                 break;
-            //是否是测试网站
+                //是否是测试网站
             case "isTestWeb":
-                if(paraStr == "true" && sid!=""){
+                if (paraStr == "true" && sid != "") {
                     testSID[sid] = true;
                 }
                 break;
-            // 设定域设置
+                // 设定域设置
             case "useHttpCookie":
-                useHttpCookie = paraStr.toLowerCase()=="false"? false : true;
+                useHttpCookie = paraStr.toLowerCase() == "false" ? false : true;
                 break;
             case "setDomain":
-                return (function() {
+                return (function () {
                     domainName = "";
-
                     var temp = paraStr.split(',');
                     multiDomainFlag = (temp.length > 1);
                     //http://jira.ptmind.com/browse/FB-629|对域名进行排序，使domainName值按长度排序，避免abc.com和abc.com.cn的错误[zhaopengjun 2015-04-07]
                     temp.sort(function (a, b) {
-                    	return a.replace(/^https?:\/\//, "").length > b.replace(/^https?:\/\//, "").length ? 1 : -1
+                        return a.replace(/^https?:\/\//, "").length > b.replace(/^https?:\/\//, "").length ? 1 : -1
                     });
                     for (var i = 0; i < temp.length; i++) {
-                    	domainSet.push(temp[i].replace(/^https?:\/\//, ""));
-                    	if (temp[i].match(/https?:\/\//) && temp[i].match(/https?:\/\//)[0] != location.protocol + "//") {
-                    		continue;
-                    	} // 设定的域名只兼容某一种协议
-                    	if (location.hostname.indexOf(temp[i].replace(/^https?:\/\//, "")) > -1) {
-                    		domainName = temp[i].replace(/^https?:\/\//, "");
-                    	}
+                        domainSet.push(temp[i].replace(/^https?:\/\//, ""));
+                        if (temp[i].match(/https?:\/\//) && temp[i].match(/https?:\/\//)[0] != location.protocol + "//") {
+                            continue;
+                        } // 设定的域名只兼容某一种协议
+                        if (location.hostname.indexOf(temp[i].replace(/^https?:\/\//, "")) > -1) {
+                            domainName = temp[i].replace(/^https?:\/\//, "");
+                        }
                     }
                     if (paraStr == "default" || location.href.slice(0, 4) != "http") { // 兼容原ptengine的代码
-                    	domainName = location.href.toLowerCase().split("://")[1].split("?")[0].split("/")[0];
-                    	domainSet.push(domainName);
+                        domainName = location.href.toLowerCase().split("://")[1].split("?")[0].split("/")[0];
+                        domainSet.push(domainName);
                     }
                     return true;
                 })();
                 break;
             case "setAutoEvent":
-                if(paraStr.split(",").length==2){
+                if (paraStr.split(",").length == 2) {
                     autoEventList[paraStr.split(",")[0]] = paraStr.split(",")[1];
                 }
                 break;
             case "setEventReport":
-                PT_trackEvent = paraStr=="true";
+                PT_trackEvent = paraStr == "true";
                 break;
             case "setAutoFetchMatch":
                 setAutoFetchMatch(paraStr)
+                break;
+            case "setPayDomainList":
+                payList =  paraStr.replace(/,$/,'').split(',');
                 break;
             default:
                 break;
@@ -3342,7 +3324,6 @@ _pt_sp_2.push('setEngageEnabled,1');
         var params = paraStr.split(',');
         var schema = params[0],//模式 URL ,COOKIE 等
         subSchema = params[1],//子模式 根据模式类型比如queryString，hash,path等 确定是否存在，为空则直接占位即可
-        // type=params[2],//schema 值的类型 普通字符串，正则表达式等
         name=params[2], //值
         ret = null;
         setTimeout(function(){
@@ -3393,83 +3374,107 @@ _pt_sp_2.push('setEngageEnabled,1');
 
         return null;
     }
-    
     /*
      * 下面列了三种存储方式userData，LocalStorageState，httpCookie三种存储策略
      * 上层调用地方可以在三种之间可以随意替换策略，而无需任何其他修改
      */
-    function Ie6to8State(httpCookieState){
+    function Ie6to8State(httpCookieState) {
         var userData = null;
-        this.init = function(){
-            if(!userData){
-                try{
+        this.init = function () {
+            if (!userData) {
+                try {
                     userData = doc.createElement('input');
                     userData.type = "hidden";
-                    userData.addBehavior ("#default#userData");
+                    userData.addBehavior("#default#userData");
                     doc.body.appendChild(userData);
-                }catch(e){return false;}
+                } catch (e) {
+                    return false;
+                }
             };
             return true;
         }
-        this.isEnabled = function() {return true;}
-        this.clearOtherCookie=function(){
+        this.isEnabled = function () {
+            return true;
+        }
+        this.clearOtherCookie = function () {
             var tmpCookie = new HttpCookieState();
-            if(tmpCookie.getValue(COOKIESNAME)){
-                tmpCookie.setValue(COOKIESNAME,"",{expires: ""});
-                tmpCookie.setValue(CLICKCOOKIESNAME,"",{expires: ""});
+            if (tmpCookie.getValue(COOKIESNAME)) {
+                tmpCookie.setValue(COOKIESNAME, "", {
+                    expires: ""
+                });
+                tmpCookie.setValue(CLICKCOOKIESNAME, "", {
+                    expires: ""
+                });
             }
         }
-        this.setValue = function(name, value, options) {
-            if( name == SESSIONCOOKIESNAME ){httpCookieState.setValue(name, value, options);return;}
-            try{
-                if(this.init()){
+        this.setValue = function (name, value, options) {
+            if (name == SESSIONCOOKIESNAME) {
+                httpCookieState.setValue(name, value, options);
+                return;
+            }
+            try {
+                if (this.init()) {
                     var o = userData;
                     o.load(name);
-                    if(value) o.setAttribute("code", value);
-                    var d = new Date(), e = 30;
-                    d.setDate(d.getDate()+e);
+                    if (value) o.setAttribute("code", value);
+                    var d = new Date(),
+                        e = 30;
+                    d.setDate(d.getDate() + e);
                     o.expires = d.toUTCString();
                     o.save(name);
                 }
-            }catch (ex){}
+            } catch (ex) {}
         }
-        this.getValue = function(name) {
-            if( name == SESSIONCOOKIESNAME ){return httpCookieState.getValue(name);}
-            if(this.init()){
-                try{
+        this.getValue = function (name) {
+            if (name == SESSIONCOOKIESNAME) {
+                return httpCookieState.getValue(name);
+            }
+            if (this.init()) {
+                try {
                     var o = userData;
                     o.load(name);
                     return o.getAttribute("code");
-                }catch (ex){return null;}
+                } catch (ex) {
+                    return null;
+                }
             }
         }
     }
-    function LocalStorageState(){
-        this.isEnabled = function() {
-            return win.localStorage && (typeof(win.localStorage.removeItem)=="function");
+
+    function LocalStorageState() {
+        this.isEnabled = function () {
+            return win.localStorage && (typeof (win.localStorage.removeItem) == "function");
         }
-        this.clearOtherCookie=function(){
+        this.clearOtherCookie = function () {
             var tmpCookie = new HttpCookieState();
-            if(tmpCookie.getValue(COOKIESNAME)){
-                tmpCookie.setValue(COOKIESNAME,"",{expires: ""});
-                tmpCookie.setValue(CLICKCOOKIESNAME,"",{expires: ""});
+            if (tmpCookie.getValue(COOKIESNAME)) {
+                tmpCookie.setValue(COOKIESNAME, "", {
+                    expires: ""
+                });
+                tmpCookie.setValue(CLICKCOOKIESNAME, "", {
+                    expires: ""
+                });
             }
         }
-        this.getValue = function(name){
+        this.getValue = function (name) {
             return win.sessionStorage.getItem(name) || win.localStorage.getItem(name);
         }
-        this.setValue = function(name, value, options) {
-            if(options.expires ==""){
-                win.sessionStorage.setItem(name,value);
+        this.setValue = function (name, value, options) {
+            if (options.expires == "") {
+                win.sessionStorage.setItem(name, value);
                 win.localStorage.removeItem(name);
+            } else {
+                win.localStorage.setItem(name, value);
             }
-            else{win.localStorage.setItem(name,value);}
         }
     }
-    function HttpCookieState(){
-        this.isEnabled = function() { return na.cookieEnabled}
-        this.clearOtherCookie=function(){}
-        this.getValue = function(name) {
+
+    function HttpCookieState() {
+        this.isEnabled = function () {
+            return na.cookieEnabled
+        }
+        this.clearOtherCookie = function () {}
+        this.getValue = function (name) {
             var cookieValue = "";
             if (!this.isEnabled()) {
                 hasHttpCookies = false;
@@ -3479,15 +3484,16 @@ _pt_sp_2.push('setEngageEnabled,1');
                 for (var i = 0; i < cookies.length; i++) {
                     var cookie = objCommon.trim(cookies[i]);
                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        if ((name != COOKIESNAME) || ((name == COOKIESNAME) && (cookie.indexOf("pt1pt") < 0) && (cookie.indexOf("pt0pt") < 0) )) {// 不是主cookie，或者如果是主cookie的话，必须满足规则
+                        if ((name != COOKIESNAME) || ((name == COOKIESNAME) && (cookie.indexOf("pt1pt") < 0) && (cookie.indexOf("pt0pt") < 0))) { // 不是主cookie，或者如果是主cookie的话，必须满足规则
                             cookieValue = cookie.substring(name.length + 1);
                             break;
                         }
                     }
                 }
-            }return cookieValue;
+            }
+            return cookieValue;
         }
-        this.setValue = function(name, value, options) {
+        this.setValue = function (name, value, options) {
             if (!this.isEnabled()) {
                 hasHttpCookies = false;
                 return;
@@ -3498,15 +3504,16 @@ _pt_sp_2.push('setEngageEnabled,1');
                 if (typeof options.expires == 'number') {
                     date = new Date();
                     date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+                } else {
+                    date = options.expires;
                 }
-                else {date = options.expires;}
                 expires = '; expires=' + date.toUTCString();
             }
             //var domain = options.domain ? '; domain=' + (options.domain) : '';
             //var secure = options.secure ? '; secure' : '';
             //var path = options.path ? '; path=' + (options.path) : '';
             //doc.cookie = [name, '=', value, expires, path, domain, secure].join('');
-            doc.cookie = name+'='+value+expires+'; path=/; domain='+domainName;
+            doc.cookie = name + '=' + value + expires + '; path=/; domain=' + domainName;
         }
     };
     // cookies操作模块
@@ -3514,74 +3521,74 @@ _pt_sp_2.push('setEngageEnabled,1');
         var isGiveup = false;
         //策略模式，配置不同的存储策略
         this.localDataType = "";
-        if(!useHttpCookie && na.userAgent.toLowerCase().match(/msie\s([2-8]+?\.[\d]+)/ig)) {//userData
+        if (!useHttpCookie && na.userAgent.toLowerCase().match(/msie\s([2-8]+?\.[\d]+)/ig)) { //userData
             this.localDataType = new Ie6to8State(new HttpCookieState());
-        }else if(!useHttpCookie && win.localStorage && win.sessionStorage && typeof(win.localStorage.removeItem)=="function" && typeof(win.sessionStorage.removeItem)=="function"){//用localStorage
-            var k="pt_test";
+        } else if (!useHttpCookie && win.localStorage && win.sessionStorage && typeof (win.localStorage.removeItem) == "function" && typeof (win.sessionStorage.removeItem) == "function") { //用localStorage
+            var k = "pt_test";
             //写入两个storage值
-            win.sessionStorage.setItem(k+"sk",k+"sv");
-            win.localStorage.setItem(k+"lk",k+"lv");
-            if(win.sessionStorage.getItem(k+"sk")==k+"sv" && win.localStorage.getItem(k+"lk")==k+"lv"){
+            win.sessionStorage.setItem(k + "sk", k + "sv");
+            win.localStorage.setItem(k + "lk", k + "lv");
+            if (win.sessionStorage.getItem(k + "sk") == k + "sv" && win.localStorage.getItem(k + "lk") == k + "lv") {
                 //只有可以读取刚才存取的值的，才会改为使用storage方式作为存储
                 this.localDataType = new LocalStorageState();
-            }else{
+            } else {
                 var isGiveup = true;
                 //this.localDataType = new HttpCookieState();
             }
             //销毁刚才生成的storage值
-            win.sessionStorage.removeItem(k+"sk");
-            win.localStorage.removeItem(k+"lk");
-        }else if(!useHttpCookie){
+            win.sessionStorage.removeItem(k + "sk");
+            win.localStorage.removeItem(k + "lk");
+        } else if (!useHttpCookie) {
             var isGiveup = true;
-        }else{
+        } else {
             this.localDataType = new HttpCookieState();
         }
-        if(isGiveup){
-            this.clearOtherCookie = function(){}
-            this.isEnabled = function() { return false;}
-            this.setValue = function(name, value, options) {}
-            this.getValue = function(name) {return "";}
-        }else{
-            this.clearOtherCookie = function(){
+        if (isGiveup) {
+            this.clearOtherCookie = function () {}
+            this.isEnabled = function () {
+                return false;
+            }
+            this.setValue = function (name, value, options) {}
+            this.getValue = function (name) {
+                return "";
+            }
+        } else {
+            this.clearOtherCookie = function () {
                 this.localDataType.clearOtherCookie();
             }
-            this.isEnabled = function() {
+            this.isEnabled = function () {
                 return this.localDataType.isEnabled();
             }
-            this.setValue = function(name, value, options) {
+            this.setValue = function (name, value, options) {
                 this.localDataType.setValue(name, value, options);
             }
-            this.getValue = function(name) {
+            this.getValue = function (name) {
                 return this.localDataType.getValue(name);
             }
         }
     }
-
-    /**
-     * 访客信息采集模块
-     * @constructor
-     */
+    // 访客信息采集模块
     function CLSBrowserInfo() {
-        this.getSysInfo = function(){
+        this.getSysInfo = function () {
             var sysInfo = []; // UID字符组
             //当宽度大于高度的时候，
-            if(this.getTerminalType() == 1 || this.getTerminalType() == 4) {
+            if (this.getTerminalType() == 1 || this.getTerminalType() == 4) {
                 //对于手机和平板，数值小的就是宽度，数值大的就是高度。永远统计竖屏状态
-                sysInfo.push("." + [this.getViewWidth(),this.getScreenHeight()].sort()[0]);// 屏幕宽度
-                sysInfo.push("." + [this.getViewWidth(),this.getScreenHeight()].sort()[1]);// 屏幕高度
-            }else{
-                sysInfo.push("." + this.getScreenWidth());// 屏幕宽度
-                sysInfo.push("." + this.getScreenHeight());// 屏幕高度
+                sysInfo.push("." + [this.getViewWidth(), this.getScreenHeight()].sort()[0]); // 屏幕宽度
+                sysInfo.push("." + [this.getViewWidth(), this.getScreenHeight()].sort()[1]); // 屏幕高度
+            } else {
+                sysInfo.push("." + this.getScreenWidth()); // 屏幕宽度
+                sysInfo.push("." + this.getScreenHeight()); // 屏幕高度
             }
-            sysInfo.push("." + (win.screen.colorDepth||0));        // 屏幕色深，取得屏幕信息（width*length*color）
-            sysInfo.push("." + this.getTimezone().replace(/\./g, "_"));  // 时区, 将小数点替换成_是为了不合信息串中的小数点冲突
-            sysInfo.push("." + (na.platform||"").replace(/\./g, "_").toLowerCase());                     // 取得系统平台
-            sysInfo.push("." + (na.language||na.browserLanguage||"").replace(/\./g, "_").toLowerCase()); // 取得浏览器语言
-            sysInfo.push("." + (doc.characterSet || doc.charset ||"").replace(/\./g, "_").toLowerCase());// 取得浏览器字符集
+            sysInfo.push("." + (win.screen.colorDepth || 0)); // 屏幕色深，取得屏幕信息（width*length*color）
+            sysInfo.push("." + this.getTimezone().replace(/\./g, "_")); // 时区, 将小数点替换成_是为了不合信息串中的小数点冲突
+            sysInfo.push("." + (na.platform || "").replace(/\./g, "_").toLowerCase()); // 取得系统平台
+            sysInfo.push("." + (na.language || na.browserLanguage || "").replace(/\./g, "_").toLowerCase()); // 取得浏览器语言
+            sysInfo.push("." + (doc.characterSet || doc.charset || "").replace(/\./g, "_").toLowerCase()); // 取得浏览器字符集
             /*合并成URL传参时用的信息串*/
-            return sysInfo.join("");//paraStr
+            return sysInfo.join(""); //paraStr
         }
-        this.getUidStr = function(){
+        this.getUidStr = function () {
             try {
                 var uidStr = [this.getSysInfo()]; // UID字符组
                 // 取得UA
@@ -3595,7 +3602,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                 // 当次访问时间
                 uidStr.push("&ts=" + visitTimeDate);
                 var str = uidStr.join("");
-                if (!str) {     // 判断uid是否为空，如果为空，通过时间和随机数重新创建uid
+                if (!str) { // 判断uid是否为空，如果为空，通过时间和随机数重新创建uid
                     str = (new Date()).getTime() + "" + Math.random();
                 }
                 return str;
@@ -3604,12 +3611,12 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
         }
         // 取得title
-        this.getTitle = function() {
+        this.getTitle = function () {
             try {
                 var tmpTitle = (doc.getElementsByTagName("title")[0] && doc.getElementsByTagName("title")[0].innerHTML) || doc.title;
                 tmpTitle = objCommon.trim(tmpTitle.split("#")[0]);
                 // 设置虚拟标题
-                if(vTitle){
+                if (vTitle) {
                     tmpTitle = vTitle;
                 }
                 return objCommon.encode(tmpTitle, false);
@@ -3618,7 +3625,7 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
         }
         // 判断ref的类型
-        this.getRefType = function(ref) {
+        this.getRefType = function (ref) {
             if (!ref) {
                 return 0;
             } else {
@@ -3642,20 +3649,21 @@ _pt_sp_2.push('setEngageEnabled,1');
         }
         // 取得流量来源
         // 返回 {"flag":0, "referrer":""}; 0:直接来源或者站内 | 1:外链
-        this.getRef = function() {
+        this.getRef = function () {
             try {
                 var tmpRef = {
                     "flag": 0,
                     "referrer": ""
                 };
+                //if (doc.referrer) {
                 //zpj:FB-148 CV流程监测问题的特殊对应
                 var tmpReferrer = doc.referrer;
                 if (tmpReferrer || (funnelPage && funnelRef)) {
                     if (funnelPage) {
-                        tmpReferrer = funnelRef ? funnelRef : "*"+tmpReferrer+"*";
+                        tmpReferrer = funnelRef ? funnelRef : "*" + tmpReferrer + "*";
                     }
                     var tempRefArray = tmpReferrer.match(/^(\S+:\/\/)?([^\/|\?|\#]+)(\S*)/);
-                    tmpRef["referrer"] = tempRefArray[1].toLowerCase()+tempRefArray[2].toLowerCase()+tempRefArray[3];
+                    tmpRef["referrer"] = tempRefArray[1].toLowerCase() + tempRefArray[2].toLowerCase() + tempRefArray[3];
                     if (tmpRef["referrer"]) {
                         tmpRef["referrer"] = tmpRef["referrer"].split("#")[0].replace(/(^\s*)/g, "").replace(/(\s*$)/g, "");
                         if (tmpRef["referrer"].indexOf("?_randomTest") > -1) {
@@ -3663,10 +3671,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                             tmpRef["referrer"] = tmpRef["referrer"].split("?_randomTest")[0];
                         }
                         // 删除最后的/号，或者以//开始的字符串
-                        if(sid!="7f21ceb9"  && sid!="2f120b77"){
-                            tmpRef["referrer"] = tmpRef["referrer"].replace(/\/*$/, "");
-                        }
-  
+                        tmpRef["referrer"] = tmpRef["referrer"].replace(/\/*$/, "");
                         var tmpHost = tmpRef["referrer"].split("?")[0].toLowerCase();
                         // 判断是ref是否在域名范围内
                         for (var i = 0; i < domainSet.length; i++) {
@@ -3690,6 +3695,15 @@ _pt_sp_2.push('setEngageEnabled,1');
                             tmpRef["flag"] = 1;
                         }
                     }
+
+                    //如果是支付外链，则保持不需要创建新访次 & 去掉渠道来源
+                    for(var i=0,len = payList.length;i<len;i++){
+                        if(payList[i] && tmpRef['referrer'].indexOf(payList[i])!==-1){
+                            tmpRef["flag"] = 0;
+                            tmpRef["referrer"] = objHttpCookies.getValue(REFCOOKIENAME);
+                            return tmpRef;
+                        }
+                    }
                 }
                 // 直接输入来源不影响当前的访次
                 return tmpRef;
@@ -3698,7 +3712,7 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
         }
         // 获得插件信息
-        this.getPlugins = function() {
+        this.getPlugins = function () {
             var tmp = "";
             var np = na.plugins;
             if (np.length != 0) {
@@ -3715,8 +3729,8 @@ _pt_sp_2.push('setEngageEnabled,1');
             return tmp;
         }
         //设置URL合并
-        this.setURLMerger = function(urlStr) {
-            var allPageInfo = window['allPageInfo']||[];
+        this.setURLMerger = function (urlStr) {
+            var allPageInfo = window['allPageInfo'] || [];
             /*将window['allPageInfo']替换成一个二维数组，替换完成后，每一个域名三个参数的顺序依次是1、去除锚点。2、去除www。3、去除默认网址。4、默认网址文件名称。5、去除URL末尾斜杠
              例如
              var allPageInfo = [
@@ -3724,27 +3738,27 @@ _pt_sp_2.push('setEngageEnabled,1');
              ];
              */
             //用域名长度排序一下
-            /*allPageInfo = allPageInfo.sort(function(a,b){	//注释掉：主域合并后，这段排序已经不需要了——zpj_2014.12.11
+            /*allPageInfo = allPageInfo.sort(function(a,b){ //注释掉：主域合并后，这段排序已经不需要了——zpj_2014.12.11
              return a[0].length<b[0].length;
              });*/
 
-            function isTrueMatch(url, domainName) {	//判断当前URL和客户设置的域名是否匹配
-                var protocol=domainName.match(/^https?:\/\//);
+            function isTrueMatch(url, domainName) { //判断当前URL和客户设置的域名是否匹配
+                var protocol = domainName.match(/^https?:\/\//);
                 return protocol ? (url.indexOf(protocol[0]) == 0 && url.indexOf(domainName.substring(protocol[0].length)) > -1) : (url.indexOf(domainName) > -1);
             }
             var tmp = urlStr;
-            for(var i=0;i<allPageInfo.length;i++){
-                if(isTrueMatch(urlStr, allPageInfo[i][0])){
+            for (var i = 0; i < allPageInfo.length; i++) {
+                if (isTrueMatch(urlStr, allPageInfo[i][0])) {
                     //去锚点
-                    if(allPageInfo[i][1]){
-                        tmp = tmp.replace(/\#[^#|\$|\?]*/g,"");
+                    if (allPageInfo[i][1]) {
+                        tmp = tmp.replace(/\#[^#|\$|\?]*/g, "");
                         //tmp = tmp.replace(/#[^#\$\?\/]*$/g,"");//设置URL合并的锚点正则修改，暂时没更新线上
                     }
-                    if(allPageInfo[i][2]){
-                        tmp = tmp.replace(/^(http:\/\/|https:\/\/)?www./,"$1");
+                    if (allPageInfo[i][2]) {
+                        tmp = tmp.replace(/^(http:\/\/|https:\/\/)?www./, "$1");
                     }
-                    if(allPageInfo[i][3]){
-                        tmp = tmp.replace(new RegExp("([^\#|\$|\?]*)"+allPageInfo[i][4]+"(\S*)"),"$1$2");
+                    if (allPageInfo[i][3]) {
+                        tmp = tmp.replace(new RegExp("([^\#|\$|\?]*)" + allPageInfo[i][4] + "(\S*)"), "$1$2");
                     }
                     URLTrimFlag = (URLTrimFlag == "tmpUrlAPI") ? "tmpUrlAPI" : (allPageInfo[i][5] == false) ? false : true;
                     break;
@@ -3753,37 +3767,38 @@ _pt_sp_2.push('setEngageEnabled,1');
             return tmp;
         }
         //取得当前路径
-        this.getPage = function() {    //作为一个get开头的函数，居然里面有赋值操作(给title赋值)。必须找机会分离
-            var i, tmpArray = [], tmpValue = "";
-            var tmp = (loc.protocol+"//"+loc.host).toLowerCase()+loc["pathname"]+loc["search"]+loc["hash"];
-            
-            if(!tmp){return "";}
+        this.getPage = function () { //作为一个get开头的函数，居然里面有赋值操作(给title赋值)。必须找机会分离
+            //try {
+            var i, tmpArray = [],
+                tmpValue = "";
+            var tmp = (loc.protocol + "//" + loc.host).toLowerCase() + loc["pathname"] + loc["search"] + loc["hash"];
+            if (!tmp) {
+                return "";
+            }
 
-            // 去除由于"多域名处理"携带着#_pt_link=或?/&_pt_link=参数
-            if (domainSet.length>1) {
+            // 多域名处理(带着#_pt_link=或?/&_pt_link=）
+            if (domainSet.length > 1) {
                 var reg1 = new RegExp(/(\?|\&|\#)_pt_link=([^\&|\#]*)(\&|\#)?/);
-                if(tmp.match(reg1)){
+                if (tmp.match(reg1)) {
                     multiLinkTag = tmp.match(reg1)[2];
-                    if(tmp.match(reg1)[3]=="&"){
-                        tmp = tmp.replace(reg1,"$1");
-                    }else{
-                        tmp = tmp.replace(reg1,"$3");
+                    if (tmp.match(reg1)[3] == "&") {
+                        tmp = tmp.replace(reg1, "$1");
+                    } else {
+                        tmp = tmp.replace(reg1, "$3");
                     }
                 }
             }
-            // 删除测试后缀
-            tmp =tmp.replace(/\?_randomTest=\S*/,"")//    true                ?     tmp.replace(/\?_randomTest=\S*/,"")     :tmp;
+            tmp = sid == "56fbce4e" ? tmp.replace(/(\?|\&)__SID=\S*/, "") : tmp;
+            tmp = true ? tmp.replace(/\?_randomTest=\S*/, "") : tmp;
 
             // 设置虚拟URL
-            if(vUrl){
+            if (vUrl) {
                 tmp = vUrl;
             }
 
-            tmp = this.setURLMerger(tmp);	//URL合并，修改传入的参数，原参数为loc.href，改为tmp[zhaopengjun 2015-04-28]
+            tmp = this.setURLMerger(tmp); //网址合并，修改传入的参数，原参数为loc.href，改为tmp[zhaopengjun 2015-04-28]
 
-            /*
-             * 针对company的特殊对应
-             */
+            // 判断公司
             switch (company) {
                 case "cellant":
                     if (adParamAry) {
@@ -3813,16 +3828,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                     }
                     break;
                 case "oisix":
-                case "oisix_hk":
-                case "oisix_gochimaru":
-                    var paramAry = [];
-                    if (company == "oisix") {
-                        paramAry = ["utm_referrer", "utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sessionid", "urlserverid", "SESSIONISNEW", "k", "tk", "KAKUNINJIKAN", "screenmode", "OVRAW", "OVKEY", "OVMTC", "OVADID", "OVKWID", "OVCAMPGID", "OVADGRPID", "SESSIONISNEW", "jid", "KENSAKUMOZIFLG", "KENSAKUMOZIJOUKEN", "searchValue", "param", "faqSearchKeyword", "startNum", "maxDisplayNum", "detail", "mi2", "roadid", "cart", "ref", "utm_expid"];
-                    } else if (company == "oisix_hk") {
-                        paramAry = ["lcs_id", "tsuka_conv", "offset", "a", "x", "y", "mi2"];
-                    } else if (company == "oisix_gochimaru") {
-                        paramAry = ["vos", "utm_referrer", "utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sessionid", "urlserverid", "SESSIONISNEW", "k", "tk", "KAKUNINJIKAN", "screenmode", "OVRAW", "OVKEY", "OVMTC", "OVADID", "OVKWID", "OVCAMPGID", "OVADGRPID", "SESSIONISNEW", "jid", "KENSAKUMOZIFLG", "KENSAKUMOZIJOUKEN", "searchValue", "param", "faqSearchKeyword", "startNum", "maxDisplayNum", "detail", "mi2", "roadid", "cart", "ref", "utm_expid"];
-                    }
+                    var paramAry = ["utm_referrer", "utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sessionid", "urlserverid", "SESSIONISNEW", "k", "tk", "KAKUNINJIKAN", "screenmode", "OVRAW", "OVKEY", "OVMTC", "OVADID", "OVKWID", "OVCAMPGID", "OVADGRPID", "SESSIONISNEW", "jid", "KENSAKUMOZIFLG", "KENSAKUMOZIJOUKEN", "searchValue", "param", "faqSearchKeyword", "startNum", "maxDisplayNum", "detail", "mi2", "roadid", "cart", "ref", "hosid", "utm_expid"];
                     var headChar = "";
                     for (i = 0; i < paramAry.length; i++) {
                         headChar = "";
@@ -3837,56 +3843,56 @@ _pt_sp_2.push('setEngageEnabled,1');
                             tmp = tmpArray[0] + headChar + tmpArray[1].slice(tmpValue.length + 1);
                         }
                     }
-                    tmp = tmp.replace(/\?*$/, "").replace(/\&*$/, "");//删除最后的?号和&号
+                    tmp = tmp.replace(/\?*$/, "").replace(/\&*$/, ""); //删除最后的?号和&号
                     break;
-               
             }
-
-            // 是否通过外部API:setURL设置锚点
             if (urlMark) {
                 tmp += "#" + urlMark;
             }
             // 删除最后的/号，或者以//开始的字符串
-            if(sid!="7f21ceb9" && sid!="2934b1d1" && sid!="2161b761" && sid!="2f120b77" && URLTrimFlag != "tmpUrlAPI" && URLTrimFlag){
+            if (sid != "7f21ceb9" && sid != "2934b1d1" && sid != "2161b761" && sid != "2f120b77" && URLTrimFlag != "tmpUrlAPI" && URLTrimFlag) {
                 tmp = tmp.replace(/\/*$/, "");
             }
-            if(sid=="67a379c7"){
-                tmp = tmp.replace(/\/([\?|#])/,"$1");
-            } else if (sid=="6c75a350" && URLTrimFlag){	//http://jira.ptmind.com/browse/FB-499 ,特殊对应乐天证券，所有url末尾加斜杠
-                if (tmp.indexOf("#") == -1 && tmp.indexOf("?") == -1) {
-                    tmp = tmp.substr(-1) != "/" ? (tmp + "/") : tmp;
-                }
+            if (sid == "4c92a252") { //飞鹤特殊对应
+                tmp = tmp.replace(/\/([\?|#])/, "$1");
             }
-            //tmp = tmp.replace(/\/([\?|#])/,"$1");
             return tmp;
         }
-        // 根据系统平台类型判断是否为PC
-        this.isPCByPlat = function() {
+
+        this.isPCByPlat = function () {
             var platForm = na.platform.toLowerCase();
-            if (platForm.indexOf("win") > -1){return true;}
-            var listIn = ["mac68k","macppc","macintosh","macintel"];
-            for(var i=0;i<listIn.length;i++){
-                if(platForm==listIn[i]){return true;}
+            if (platForm.indexOf("win") > -1) {
+                return true;
+            }
+            var listIn = ["mac68k", "macppc", "macintosh", "macintel"];
+            for (var i = 0; i < listIn.length; i++) {
+                if (platForm == listIn[i]) {
+                    return true;
+                }
             }
             return false;
         }
-        this.isPCByOSList = function(uaArg) {
+        this.isPCByOSList = function (uaArg) {
             var pcOS = ["AIX", "Amiga", "BeOS", "DragonFly", "FreeBSD", "GNU", "Haiku", "HP-UX", "IRIX", "Joli", "Java", "Macintosh", "Minix", "MorphOS", "NetBSD", "OpenBSD", "PClinuxOS", "QNX x86pc", "SunOS", "Ubuntu", "Mint", "Red Hat", "Slackware", "SUSE", "PCLinuxOS", "Debian", "Fedora", "CentOS", "Vine", "Arch Linux", "Gentoo", "Kanotix", "Mandriva"];
             for (var i = 0; i < pcOS.length; i++) {
-                if (uaArg.indexOf(pcOS[i]) > -1) {return true;}
+                if (uaArg.indexOf(pcOS[i]) > -1) {
+                    return true;
+                }
             }
             return false;
         }
-        this.isMobileByOSList = function(uaArg) {
+        this.isMobileByOSList = function (uaArg) {
             var mobilephoneOS = ["Android", "AROS", "Bada", "BlackBerry", "Chromium", "CrOS", "Danger Hiptop", "Inferno", "iPhone", "iPad", "iPod", "Nintendo DS", "Nintendo Wii", "Palm OS", "PLAYSTATION", "Syllable", "SymbOS", "Symbian", "Tizen", "webOS", "WebTV", "Windows CE", "Windows Mobile", "Windows Phone", "Xbox"];
             for (var i = 0; i < mobilephoneOS.length; i++) {
-                if (uaArg.indexOf(mobilephoneOS[i]) > -1) {return true;}
+                if (uaArg.indexOf(mobilephoneOS[i]) > -1) {
+                    return true;
+                }
             }
             return false;
         }
         // 取得终端类型  0:不可识别 1:手机 2:PC 3:PC模拟的手机 4:平板
         // 1、通过platform及PC OS列表来判断是否是pc
-        this.getTerminalType = function() {
+        this.getTerminalType = function () {
             try {
                 var ua = na.userAgent;
                 if (!ua) {
@@ -3908,7 +3914,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                     }
                 } else {
                     // 为移动终端
-                    if (ua.indexOf("iPad") > -1 || Math.min(objBrowserInfo.getScreenWidth(),win.screen.height) >= 1000) {
+                    if (ua.indexOf("iPad") > -1 || Math.min(objBrowserInfo.getScreenWidth(), win.screen.height) >= 1000) {
                         // 如果是apple的平板,或者横竖分辨率最小的值大于等于1000，则判定为平板
                         return 4;
                     } else {
@@ -3921,44 +3927,44 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
         }
         // 取得分辨率宽度
-        this.getScreenWidth = function() {
+        this.getScreenWidth = function () {
             try {
                 var tmp = win.screen.width;
-                return tmp ? isNaN(parseInt(tmp,10)) ? 0 : parseInt(tmp,10) : 0;
+                return tmp ? isNaN(parseInt(tmp, 10)) ? 0 : parseInt(tmp, 10) : 0;
             } catch (ex) {
                 return 0;
             }
         }
         // 取得分辨率高度
-        this.getScreenHeight = function() {
+        this.getScreenHeight = function () {
             try {
                 var tmp = win.screen.height;
-                if((this.getTerminalType() == 1 && tmp > 2000)||(this.getTerminalType() == 4 && tmp > 3000)){
+                if ((this.getTerminalType() == 1 && tmp > 2000) || (this.getTerminalType() == 4 && tmp > 3000)) {
                     tmp = this.getViewHeight();
                 }
-                return tmp ? isNaN(parseInt(tmp,10)) ? 0 : parseInt(tmp,10) : 0;
+                return tmp ? isNaN(parseInt(tmp, 10)) ? 0 : parseInt(tmp, 10) : 0;
             } catch (ex) {
                 return 0;
             }
         }
         // 取得浏览器高度
-        this.getBrowserHeight = function() {
+        this.getBrowserHeight = function () {
             try {
                 //var tmp = win.innerHeight ? win.innerHeight : doc.body.clientHeight;
                 // var tmp = doc.documentElement.clientHeight ? doc.documentElement.clientHeight : doc.body.clientHeight;
                 var tmp = win.innerHeight || doc.documentElement.clientHeight || doc.body.clientHeight;
-                var quirksModeSid=['79574faf','42a5e638'];
+                var quirksModeSid = []; //中国区暂时没有特殊应对
                 //FB-1480:该站点没有doctype,导致高度的计算有问题
-                if(quirksModeSid.join(',').indexOf(sid)>-1){
-                    tmp = win.innerHeight || doc.body.clientHeight|| doc.documentElement.clientHeight ;
+                if (quirksModeSid.join(',').indexOf(sid) > -1) {
+                    tmp = win.innerHeight || doc.body.clientHeight || doc.documentElement.clientHeight;
                 }
-                return tmp ? isNaN(parseInt(tmp,10)) ? 0 : parseInt(tmp,10) : 0;
+                return tmp ? isNaN(parseInt(tmp, 10)) ? 0 : parseInt(tmp, 10) : 0;
             } catch (ex) {
                 return 0;
             }
         }
         // 取得滚动条的位置
-        this.getScrollY = function() {
+        this.getScrollY = function () {
             var y = 0;
             try {
                 y = doc.documentElement.scrollTop || win.pageYOffset;
@@ -3966,22 +3972,22 @@ _pt_sp_2.push('setEngageEnabled,1');
             } catch (ex) {
                 y = 0;
             }
-            return parseInt(y,10);
+            return parseInt(y, 10);
         }
         // 取得yMax的位置
-        this.getYMax = function() {
+        this.getYMax = function () {
             var value = +(this.getScrollY()) + +(this.getBrowserHeight());
             value = isNaN(value) ? 0 : parseInt(value, 10);
             return value;
         }
         // 取得滚动条的位置
-        this.getScrollX = function() {
+        this.getScrollX = function () {
             var x = doc.documentElement.scrollLeft || win.pageXOffset;
             x = isNaN(x) ? 0 : x;
-            return parseInt(x,10);
+            return parseInt(x, 10);
         }
         // 取得时区
-        this.getTimezone = function() {
+        this.getTimezone = function () {
             try {
                 var tmp = (new Date).getTimezoneOffset();
                 return (tmp || tmp == 0) ? ("GMT" + (tmp <= 0 ? "+" : "") + (tmp / 60 * -1)) : "";
@@ -3990,45 +3996,51 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
         }
         // 取得点击的来源tag
-        this.getSrcElement = function(e) {
+        this.getSrcElement = function (e) {
             var src = e.target || win.event.srcElement;
             return src;
         }
         //获取元素的绝对坐标
-        this.getOffset = function(e){
-            var offset ={ top: 0, left: 0 };
+        this.getOffset = function (e) {
+            var offset = {
+                top: 0,
+                left: 0
+            };
             //使用最新的计算方法（和jquery的一致）
-            if( typeof e.getBoundingClientRect !== typeof undefined){
+            if (typeof e.getBoundingClientRect !== typeof undefined) {
                 var docElem = doc.documentElement;
                 var docOffset = e.getBoundingClientRect();
-                offset= {
-                    top: docOffset.top  + ( win.pageYOffset || docElem.scrollTop )  - ( docElem.clientTop  || 0 ),
-                    left: docOffset.left + ( win.pageXOffset || docElem.scrollLeft ) - ( docElem.clientLeft || 0 )
+                offset = {
+                    top: docOffset.top + (win.pageYOffset || docElem.scrollTop) - (docElem.clientTop || 0),
+                    left: docOffset.left + (win.pageXOffset || docElem.scrollLeft) - (docElem.clientLeft || 0)
                 };
-            }else{//兼容旧版浏览器（不支持getBoundingClientRect 的浏览器）
-                offset.top+=e.offsetTop;
-                offset.left+=e.offsetLeft;
-                if(e.offsetParent){
-                    var parentOffset =  this.getOffset(e.offsetParent);
-                    offset.top+=parentOffset.top;
-                    offset.left+=parentOffset.left;
+            } else { //兼容旧版浏览器（不支持getBoundingClientRect 的浏览器）
+                offset.top += e.offsetTop;
+                offset.left += e.offsetLeft;
+                if (e.offsetParent) {
+                    var parentOffset = this.getOffset(e.offsetParent);
+                    offset.top += parentOffset.top;
+                    offset.left += parentOffset.left;
                 }
-                if(offset.top < 0){
+                if (offset.top < 0) {
                     offset.top = 0
                 }
-                if(offset.left < 0){
+                if (offset.left < 0) {
                     offset.left = 0
                 }
-                offset.top = isNaN(offset.top ) ? 0 : parseInt(offset.top ,10);
-                offset.left = isNaN(offset.left ) ? 0 : parseInt(offset.left ,10);
+                offset.top = isNaN(offset.top) ? 0 : parseInt(offset.top, 10);
+                offset.left = isNaN(offset.left) ? 0 : parseInt(offset.left, 10);
             }
             offset.top = Math.round(offset.top);
             offset.left = Math.round(offset.left);
             return offset;
         }
         // 获取相对于页面内容的点击坐标
-        this.getMouseRC = function(objEvent_) {
-            var tmp = {x: 0,y: 0};
+        this.getMouseRC = function (objEvent_) {
+            var tmp = {
+                x: 0,
+                y: 0
+            };
             try {
                 tmp.x = objEvent_.touches[0].pageX ? objEvent_.touches[0].pageX : objEvent_.clientX;
                 tmp.y = objEvent_.touches[0].pageY ? objEvent_.touches[0].pageY : objEvent_.clientY;
@@ -4042,16 +4054,15 @@ _pt_sp_2.push('setEngageEnabled,1');
                     tmp.x = 0;
                 if (!tmp.y)
                     tmp.y = 0;
-            } catch (ex) {
-            }
-            tmp.x = isNaN(tmp.x) ? 0 : parseInt(tmp.x,10);
-            tmp.y = isNaN(tmp.y) ? 0 : parseInt(tmp.y,10);
+            } catch (ex) {}
+            tmp.x = isNaN(tmp.x) ? 0 : parseInt(tmp.x, 10);
+            tmp.y = isNaN(tmp.y) ? 0 : parseInt(tmp.y, 10);
             return tmp;
         }
         // 获取相对于页面内容的点击坐标
-        this.getMouseRC1 = function(objEvent_) {
-            var xValue = parseInt(+objEvent_.clientX + +this.getScrollX(),10);
-            var yValue = parseInt(+objEvent_.clientY + +this.getScrollY(),10);
+        this.getMouseRC1 = function (objEvent_) {
+            var xValue = parseInt(+objEvent_.clientX + +this.getScrollX(), 10);
+            var yValue = parseInt(+objEvent_.clientY + +this.getScrollY(), 10);
             xValue = isNaN(xValue) ? 0 : xValue;
             yValue = isNaN(yValue) ? 0 : yValue;
             return {
@@ -4060,35 +4071,35 @@ _pt_sp_2.push('setEngageEnabled,1');
             };
         }
         //取得页面内容实际宽度
-        this.getPageWidth = function() {
-            var value = parseInt(doc.body.scrollWidth,10);
+        this.getPageWidth = function () {
+            var value = parseInt(doc.body.scrollWidth, 10);
             value = isNaN(value) ? 0 : value;
             return value;
         }
         // 取得页面内容实际高度
-        this.getPageHeight = function() {
-            var value = parseInt(doc.body.scrollHeight,10);
+        this.getPageHeight = function () {
+            var value = parseInt(doc.body.scrollHeight, 10);
             value = isNaN(value) ? 0 : value;
             return value;
         }
         //取得页面可视宽度
-        this.getViewWidth = function() {
+        this.getViewWidth = function () {
             var value = self.innerWidth || doc.body.clientWidth;
-            value = isNaN(value) ? 0 : parseInt(value,10);
+            value = isNaN(value) ? 0 : parseInt(value, 10);
             return value;
         }
         // 取得页面可视高度
-        this.getViewHeight = function() {
+        this.getViewHeight = function () {
             try {
                 var value = self.innerHeight || doc.body.clientHeight;
-                value = isNaN(value) ? 0 : parseInt(value,10);
+                value = isNaN(value) ? 0 : parseInt(value, 10);
                 return value;
             } catch (ex) {
                 return 0;
             }
         }
         // 获取初始缩放值
-        this.getInitialScale = function() {
+        this.getInitialScale = function () {
             try {
                 var viewportContent = doc.getElementsByName("viewport")[0].content;
                 if (viewportContent) {
@@ -4100,47 +4111,47 @@ _pt_sp_2.push('setEngageEnabled,1');
                 return 1;
             }
         }
-		
-		var browerType = this.browerType = function() {
-			var ua = na.userAgent;
-			var isIE = window.ActiveXObject != undefined && ua.indexOf("MSIE") != -1;
-			var isFirefox = ua.indexOf("Firefox") != -1;
-			var isOpera = window.opr != undefined;
-			var isChrome = ua.indexOf("Chrome") && window.chrome;
-			var isSafari = ua.indexOf("Safari") != -1 && ua.indexOf("Version") != -1;
-			if (isIE) {
-				return "IE";
-			} else if (isFirefox) {
-				return "Firefox";
-			} else if (isOpera) {
-				return "Opera";
-			} else if (isChrome) {
-				return "Chrome";
-			} else if (isSafari) {
-				return "Safari";
-			} else {
-				return "Unkown";
-			}
-		}();
-		
-		this.urlLengthLimit = function() {
-			// 各浏览器对url长度的限制
-			var browserUrlLimitDict = {
-				IE: 2083,
-				Firefox: 65536,
-				Chrome: 8182,
-				Safari: 80000,
-				Opera: 190000,
-				Unkown: 2083
-			};
-			
-			return browserUrlLimitDict[browerType];
-		}()
+
+        var browerType = this.browerType = function () {
+            var ua = window.navigator.userAgent;
+            var isIE = window.ActiveXObject != undefined && ua.indexOf("MSIE") != -1;
+            var isFirefox = ua.indexOf("Firefox") != -1;
+            var isOpera = window.opr != undefined;
+            var isChrome = ua.indexOf("Chrome") && window.chrome;
+            var isSafari = ua.indexOf("Safari") != -1 && ua.indexOf("Version") != -1;
+            if (isIE) {
+                return "IE";
+            } else if (isFirefox) {
+                return "Firefox";
+            } else if (isOpera) {
+                return "Opera";
+            } else if (isChrome) {
+                return "Chrome";
+            } else if (isSafari) {
+                return "Safari";
+            } else {
+                return "Unkown";
+            }
+        }();
+
+        this.urlLengthLimit = function () {
+            // 各浏览器对url长度的限制
+            var browserUrlLimitDict = {
+                IE: 2083,
+                Firefox: 65536,
+                Chrome: 8182,
+                Safari: 80000,
+                Opera: 190000,
+                Unkown: 2083
+            };
+
+            return browserUrlLimitDict[browerType];
+        }()
     }
     // Pt专用类模块
     function CLSPt() {
         // 判断功能是否开放
-        this.valFunction = function(type, arg) {
+        this.valFunction = function (type, arg) {
             var tmp = "";
             try {
                 switch (type) {
@@ -4174,75 +4185,117 @@ _pt_sp_2.push('setEngageEnabled,1');
                     default:
                         break;
                 }
-            } catch (ex) {
-            }
+            } catch (ex) {}
         }
         // 发送报文 如果times参数有值，则延时发送，如果没有则直接发送
-        this.sendMsgByScript = function() {
-			
-			function scriptRequest(targetURL) {
-				var url = targetURL + "&v=" + version + "&ts=" + (new Date()).getTime();
-				
-				if(url.length > objBrowserInfo.urlLengthLimit) {
-					if(typeof console != 'undefined') {
-						console.warn("The requested URL's length can't large than " + objBrowserInfo.urlLengthLimit);
-					}
-					return;
-				}
-				
-				var script = doc.createElement('script');
-				script.setAttribute('src', url);
-				doc.getElementsByTagName('head')[0].appendChild(script);
-			}
-			
-			return function(targetURL) {
+        this.sendMsgByScript = function () {
 
-				if (pvNum > 99) {
-					return;
-				}
-				if (sid == "53942d99") {	//http://jira.ptmind.com/browse/FB-458 ,http地址替换为https[zhaopengjun 2015-03-25]
-					targetURL = targetURL.replace(/^http:/,"https:");
-				}
-				//传统的跨域请求 开始
-				scriptRequest(targetURL);
-				//传统的跨域请求 结束
 
-				if (testSID[sid]) {
-					targetURL = targetURL.replace(sid,testSID[sid]).replace(/testcollect.ptengine.jp/, "collect.ptengine.jp");
-					//传统的跨域请求 开始
-					scriptRequest(targetURL);
-				}			
-			}
+            function scriptRequest(targetURL) {
+                var url = targetURL + "&v=" + version + "&ts=" + (new Date()).getTime();
+
+                if (url.length > objBrowserInfo.urlLengthLimit) {
+                    if (typeof console != 'undefined') {
+                        console.warn("The requested URL's length can't large than " + objBrowserInfo.urlLengthLimit);
+                    }
+                    return;
+                }
+
+                var script = document.createElement('script');
+                script.setAttribute('src', url);
+                document.getElementsByTagName('head')[0].appendChild(script);
+            }
+
+            return function (targetURL) {
+
+                if (pvNum > 99) {
+                    return;
+                }
+                //传统的跨域请求 开始
+                scriptRequest(targetURL);
+                //传统的跨域请求 结束
+
+                if (testSID[sid]) {
+                    if (sid == "4c92a252") { //增加飞鹤sid特殊对应，发送测试包到原域名服务器
+                        var base64EncodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/";
+                        //从uid中取出8个base64的字符
+                        var shortUid = uid.substr(1, 2) +
+                            uid.substr(5, 1) + uid.substr(8, 1) +
+                            uid.substr(10, 1) + uid.substr(13, 1) + uid.substr(15, 1) + uid.substr(19, 1);
+                        var index = 0;
+                        var number = 0;
+                        //将8个base64的字符转换为数字
+                        while (index < 8) {
+                            var c = shortUid.charAt(7 - index);
+                            var n = base64EncodeChars.indexOf(c);
+                            number += n * Math.pow(64, index);
+                            index++;
+                        }
+                        if (number % 10 == 0) {
+                            scriptRequest(targetURL);
+                        }
+                    } else {
+                        //传统的跨域请求 开始
+                        scriptRequest(targetURL);
+                    }
+                }
+
+            }
         }();
-		
-		
         // 发送报文 如果times参数有值，则延时发送，如果没有则直接发送
-        this.sendMsg = function(targetURL) {
-            if (pvNum > 99) {
-                return;
-            }
-            if (sid == "53942d99") {	//http://jira.ptmind.com/browse/FB-458 ,http地址替换为https[zhaopengjun 2015-03-25]
-                targetURL = targetURL.replace(/^http:/,"https:");
+        this.sendMsg = function () {
+
+            function imageRequest(targetURL) {
+                var url = targetURL + "&v=" + version + "&ts=" + (new Date()).getTime();
+
+                // 超长不发包
+                if (url.length > objBrowserInfo.urlLengthLimit) {
+                    if (typeof console != 'undefined') {
+                        console.warn("The requested URL's length can't large than " + objBrowserInfo.urlLengthLimit);
+                    }
+                    return;
+                }
+
+                (new Image()).src = url;
             }
 
-			var url = targetURL + "&v=" + version + "&ts=" + (new Date()).getTime();
-			
-			if(url.length > objBrowserInfo.urlLengthLimit) {
-				if(typeof console != 'undefined') {
-					console.warn("The requested URL's length can't large than " + objBrowserInfo.urlLengthLimit);
-				}
-				return;
-			}
-			
-            var tempImg = new Image();
-            tempImg.src = url;
-            if (testSID[sid]) {
-                (new Image()).src = targetURL.replace(sid,testSID[sid]).replace(/testcollect.ptengine.jp/, "collect.ptengine.jp") + "&v="+version+"&ts=" + (new Date()).getTime();
-            }
-        }
+            return function (targetURL) {
 
+                if (pvNum > 99) {
+                    return;
+                }
+
+                imageRequest(targetURL);
+
+                if (testSID[sid]) {
+                    if (sid == "4c92a252") { //增加飞鹤sid特殊对应，发送测试包到原域名服务器
+                        var base64EncodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/";
+                        //从uid中取出8个base64的字符
+                        var shortUid = uid.substr(1, 2) +
+                            uid.substr(5, 1) + uid.substr(8, 1) +
+                            uid.substr(10, 1) + uid.substr(13, 1) + uid.substr(15, 1) + uid.substr(19, 1);
+                        var index = 0;
+                        var number = 0;
+                        //将8个base64的字符转换为数字
+                        while (index < 8) {
+                            var c = shortUid.charAt(7 - index);
+                            var n = base64EncodeChars.indexOf(c);
+                            number += n * Math.pow(64, index);
+                            index++;
+                        }
+                        if (number % 10 == 0) {
+                            targetURL = targetURL.replace(/collect.ptengine.cn/, "tzcj.ptmind.com");
+                            imageRequest(targetURL);
+                        }
+                    } else {
+                        targetURL = targetURL.replace(/collect.ptengine.cn/, "tzcj.ptmind.com");
+                        imageRequest(targetURL);
+                    }
+                }
+            }
+        }();
         this.createCORSRequest = function (method, url) {
-            var xhr = new win.XMLHttpRequest();
+            var xhr = new XMLHttpRequest();
             if ("withCredentials" in xhr) {
 
                 // "withCredentials"属性是XMLHTTPRequest2中独有的
@@ -4250,7 +4303,7 @@ _pt_sp_2.push('setEngageEnabled,1');
 
             } else if (typeof XDomainRequest != "undefined") {
                 // 检测是否XDomainRequest可用ie 8.9 中 使用XDomainRequest
-                xhr = new win.XDomainRequest();
+                xhr = new XDomainRequest();
                 xhr.open(method, url);
 
             } else {
@@ -4271,46 +4324,46 @@ _pt_sp_2.push('setEngageEnabled,1');
                 return false;
             }
         }
+
         // css路径转化
-        this.getCssPath = function(dom) {
+        this.getCssPath = function (dom) {
             var domNodeName = dom.nodeName.toLowerCase();
             if (domNodeName == "body" || domNodeName == "html") {
                 return "body";
-            }
-            else {
+            } else {
                 var parentNode = dom.parentNode;
                 //存在id时,用id标示元素
-				if (dom.getAttribute("id")) {
-					return this.getCssPath(parentNode) + '>' + "#" + dom.getAttribute("id");
-				}
+                if (dom.getAttribute("id")) {
+                    return this.getCssPath(parentNode) + '>' + "#" + dom.getAttribute("id");
+                }
                 //表单元素如果存在name 则用nodeName 和name来标示元素
                 else if (domNodeName == "input" || domNodeName == "select" || domNodeName == "textarea" || domNodeName == "button") {
                     if (dom.getAttribute("name")) {
                         //return this.getCssPath(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']";
-						
-						var formNodes = parentNode.querySelectorAll(domNodeName + "[name='" + dom.getAttribute("name")+ "']");
-						if(formNodes.length > 1) {	// 如果超过多个如radio, checkbox,加上eq(index)
-							for(var i = 0; i < formNodes.length; i ++) {
-								if(formNodes[i] == dom) {
-									return this.getCssPath(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']:eq(" + i + ")";
-								}
-							}
-						} else if(formNodes.length == 1) {
-							return this.getCssPath(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']";
-						}
+
+                        var formNodes = parentNode.querySelectorAll(domNodeName + "[name='" + dom.getAttribute("name") + "']");
+                        if (formNodes.length > 1) { // 如果超过多个如radio, checkbox,加上eq(index)
+                            for (var i = 0; i < formNodes.length; i++) {
+                                if (formNodes[i] == dom) {
+                                    return this.getCssPath(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']:eq(" + i + ")";
+                                }
+                            }
+                        } else if (formNodes.length == 1) {
+                            return this.getCssPath(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']";
+                        }
                     }
                 }
 
                 //元素不存在id,表单元素也没有name时,用其在其父级元素中相同nodeName元素的index来标示元素
-                var allChilds=[];
-                for(var i=0;i<parentNode.children.length;i++){//获取父级元素下相同nodeName的所有元素
+                var allChilds = [];
+                for (var i = 0; i < parentNode.children.length; i++) { //获取父级元素下相同nodeName的所有元素
                     var child = parentNode.children[i];
-                    if(child.nodeName && child.nodeName.toLowerCase() ==domNodeName) {
+                    if (child.nodeName && child.nodeName.toLowerCase() == domNodeName) {
                         allChilds.push(child);
                     }
                 }
                 for (var i = 0; i < allChilds.length; i++) {
-                    if (allChilds[i] == dom) {//找到元素在其父级元素下相同nodeName元素的index
+                    if (allChilds[i] == dom) { //找到元素在其父级元素下相同nodeName元素的index
                         return this.getCssPath(parentNode) + ">" + domNodeName + ":eq(" + i + ")";
                     }
                 }
@@ -4318,20 +4371,18 @@ _pt_sp_2.push('setEngageEnabled,1');
 
         }
         // 旧版css路径转化,用来判断旧版事件
-        this.getCssPathOld = function(dom) {
+        this.getCssPathOld = function (dom) {
             var domNodeName = dom.nodeName.toLowerCase();
             if (domNodeName == "body" || domNodeName == "html") {
                 return "body";
-            }
-            else if (dom.getAttribute("id")) {
+            } else if (dom.getAttribute("id")) {
                 return "#" + dom.getAttribute("id");
-            }
-            else {
+            } else {
                 var parentNode = dom.parentNode;
                 var emptyDomCount = 0;
                 ///如果爷爷节点和父节点类型相同，爷爷当父节点。网上倒
                 while (domNodeName == parentNode.nodeName.toLowerCase()) {
-                    if (parentNode.getAttribute("id")) {//如果本身有id就不往上倒了
+                    if (parentNode.getAttribute("id")) { //如果本身有id就不往上倒了
                         break;
                     }
                     parentNode = parentNode.parentNode;
@@ -4339,7 +4390,7 @@ _pt_sp_2.push('setEngageEnabled,1');
                 var allChilds = parentNode.getElementsByTagName(domNodeName);
                 //如果父节点只有一个同类型的子节点，接着往上倒
                 while (allChilds.length == 1) {
-                    if (parentNode.getAttribute("id") || parentNode.nodeName.toLowerCase() == "body") {//如果本身有id就不往上倒了
+                    if (parentNode.getAttribute("id") || parentNode.nodeName.toLowerCase() == "body") { //如果本身有id就不往上倒了
                         break;
                     }
                     parentNode = parentNode.parentNode;
@@ -4350,17 +4401,16 @@ _pt_sp_2.push('setEngageEnabled,1');
                         if (domNodeName == "input" || domNodeName == "select" || domNodeName == "textarea" || domNodeName == "button") {
                             if (dom.getAttribute("name")) {
                                 //return this.getCssPathOld(parentNode) + " " + domNodeName + ":input[name='" + dom.getAttribute("name") + "']";
-								
-								var formNodes = parentNode.querySelectorAll(domNodeName + "[name='" + dom.getAttribute("name")+ "']");
-								if(formNodes.length > 1) {	// 如果超过多个如radio, checkbox,加上eq(index)
-									for(var i = 0; i < formNodes.length; i ++) {
-										if(formNodes[i] == dom) {
-											return this.getCssPathOld(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']:eq(" + i + ")";
-										}
-									}
-								} else if(formNodes.length == 1) {
-									return this.getCssPathOld(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']";
-								}
+                                var formNodes = parentNode.querySelectorAll(domNodeName + "[name='" + dom.getAttribute("name") + "']");
+                                if (formNodes.length > 1) { // 如果超过多个如radio, checkbox,加上eq(index)
+                                    for (var i = 0; i < formNodes.length; i++) {
+                                        if (formNodes[i] == dom) {
+                                            return this.getCssPathOld(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']:eq(" + i + ")";
+                                        }
+                                    }
+                                } else if (formNodes.length == 1) {
+                                    return this.getCssPathOld(parentNode) + ">" + domNodeName + ":input[name='" + dom.getAttribute("name") + "']";
+                                }
                             }
                         }
                         return this.getCssPathOld(parentNode) + " " + domNodeName + ":eq(" + (i - emptyDomCount) + ")";
@@ -4370,20 +4420,20 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
         }
         // 找到是A的父节点
-        this.parentA =function(dom){
-            while(dom.nodeName.toLowerCase()!="body") {
-                if(dom.nodeName.toLowerCase()=="a"){
+        this.parentA = function (dom) {
+            while (dom.nodeName.toLowerCase() != "body") {
+                if (dom.nodeName.toLowerCase() == "a") {
                     return dom;
-                }
-                else{
+                } else {
                     dom = dom.parentNode;
                 }
             }
             return false;
         }
     }
+
     function CookieOfPt() {
-        this.cookiesValue="";
+        this.cookiesValue = "";
         this.syncSharedStorage = function(){
             var cookieNum = Math.floor(pageList.length / 3800);
             var objNeedSync = {
@@ -4403,23 +4453,42 @@ _pt_sp_2.push('setEngageEnabled,1');
                 console.log('write done!');
             })
         };
-        this.writeCookies = function(){
+        this.writeRefererCookies = function(){
+            //保存用户cookie
+            var referrer = doc.referrer,
+             fromSpecialDomain = false;//
+            if(payList.length>0){
+                for(var i=0,len=payList.length;i<len;i++){
+                    //如果来源于
+                    if(referrer.indexOf(payList[i])!=-1){
+                        fromSpecialDomain = true;
+                    }
+                }
+                if(!fromSpecialDomain){
+                    //如果不是从特殊 域名过来的 写referer到cookie 中
+                    objHttpCookies.setValue(REFCOOKIENAME,referrer,{
+                        expires:expiresDay
+                    });
+                }
+            }
+        }
+        this.writeCookies = function () {
             if (hasHttpCookies) {
                 this.cookiesValue = this.createCookiesValue();
                 objHttpCookies.setValue(COOKIESNAME, this.cookiesValue, {
                     expires: expiresDay
                 });
-                isSafariAndAppliedITP() && this.syncSharedStorage();
             }
+            isSafariAndAppliedITP() && this.syncSharedStorage();
             this.readCookies();
         }
-        this.readCookies = function(){
+        this.readCookies = function () {
             if (hasHttpCookies) {
                 this.cookiesValue = objHttpCookies.getValue(COOKIESNAME);
             }
         }
         // 判断是否是刷新的页面
-        this.getIsRefresh = function(visitTime) {
+        this.getIsRefresh = function (visitTime) {
             if ((this.cookiesValue.indexOf(pageID) > -1) && !objCommon.timeCompare_M(this.getValueFromCookies("sact"), visitTime, REFRESHTIMES)) {
                 // 如果页面相同并且当前时间距离上次活动时间不到指定时间的话，则判断为刷新
                 return 1;
@@ -4428,7 +4497,7 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
         }
         // 判断该访次的属性：0为非新访次，1为新访次
-        this.getIsNV = function(visitTime) {
+        this.getIsNV = function (visitTime) {
             if (sessionCookieFlag == 0 && !funnelPage) {
                 // http cookies启用，并且sessionCookie不存在，则判断为新访次
                 return 1;
@@ -4445,7 +4514,7 @@ _pt_sp_2.push('setEngageEnabled,1');
             return 0;
         }
         // 判断新旧访者
-        this.getIsNID = function() {
+        this.getIsNID = function () {
             // 取得当前NID值
             var tmp = this.getValueFromCookies("nid");
             if (tmp == "1") {
@@ -4454,43 +4523,45 @@ _pt_sp_2.push('setEngageEnabled,1');
             return tmp;
         }
         // 判断当前页面是否激活
-        this.isActive = function() {
+        this.isActive = function () {
             return this.getValueFromCookies("pl") == pageID + "*pt*" + pageAccessTime;
         }
         // 判断当前页面是否激活
-        this.isNewVisit = function(oldVID, recentTime) {
+        this.isNewVisit = function (oldVID, recentTime) {
             return (this.getValueFromCookies("vid") != oldVID) && (+recentTime >= +this.getValueFromCookies("sact"));
         }
         // 创建cookie
-        this.createCookiesValue = function() {
+        this.createCookiesValue = function () {
             var cookieNum = Math.floor(pageList.length / 3800);
-            var value = "uid=" + uid
-                + "&nid=" + isNID
-                + "&vid=" + visitID
-                + "&vn=" + visitNum
-                + "&pvn=" + pvNum
-                + "&sact=" + siteActionTime
-                + "&to_flag=" + toFlag
-                + ((+cookieNum > 0) ? ("&cn=" + cookieNum) : "")
-                + "&pl=" + pageList;
+            var value = "uid=" + uid +
+                "&nid=" + isNID +
+                "&vid=" + visitID +
+                "&vn=" + visitNum +
+                "&pvn=" + pvNum +
+                "&sact=" + siteActionTime +
+                "&to_flag=" + toFlag +
+                ((+cookieNum > 0) ? ("&cn=" + cookieNum) : "") +
+                "&pl=" + pageList;
 
             return value;
         }
         // 确认cookie的完整性
-        this.checkCookiesValue = function() {
-            var cookieTag = ["uid","nid","vid","vn","sact","to_flag","pl"];
-            for(var i=0;i<cookieTag.length;i++){
-                if(this.cookiesValue.indexOf(cookieTag[i])<0){return false;}
+        this.checkCookiesValue = function () {
+            var cookieTag = ["uid", "nid", "vid", "vn", "sact", "to_flag", "pl"];
+            for (var i = 0; i < cookieTag.length; i++) {
+                if (this.cookiesValue.indexOf(cookieTag[i]) < 0) {
+                    return false;
+                }
             }
             return true;
         }
         // 根据参数名，从cookies里取得参数值
-        this.getValueFromCookies = function(arg) {
+        this.getValueFromCookies = function (arg) {
             try {
                 if (arg == "pl") {
                     return (this.cookiesValue.indexOf(arg) != -1) ? this.cookiesValue.split(arg + "=")[1] : "";
                 } else {
-                    var str =  (this.cookiesValue.indexOf(arg) != -1) ? this.cookiesValue.split(arg + "=")[1].split("&")[0] : "";
+                    var str = (this.cookiesValue.indexOf(arg) != -1) ? this.cookiesValue.split(arg + "=")[1].split("&")[0] : "";
                     if (arg == "pvn") {
                         str = isNaN(str) ? 0 : str;
                     }
@@ -4501,34 +4572,34 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
         }
         // 记录当前激活页面
-        this.plPrc = function(page_id) {
+        this.plPrc = function (page_id) {
             var page_now = page_id + "*pt*" + pageAccessTime;
             return page_now;
         }
     }
     // 通用模块
     function CLSCommon() {
-        this.addLoadEvent = function(iframe,func) {
-            var oldonload = iframe.onload;//得到上一个onload事件的函数
-            if (typeof iframe.onload != 'function') {//判断类型是否为'function',注意typeof返回的是字符串
+        this.addLoadEvent = function (iframe, func) {
+            var oldonload = iframe.onload; //得到上一个onload事件的函数
+            if (typeof iframe.onload != 'function') { //判断类型是否为'function',注意typeof返回的是字符串
                 iframe.onload = func;
             } else {
-                iframe.onload = function(){
-                    oldonload();//调用之前覆盖的onload事件的函数---->由于我对js了解不多,这里我暂时理解为通过覆盖onload事件的函数来实现加载多个函数
-                    func();//调用当前事件函数
+                iframe.onload = function () {
+                    oldonload(); //调用之前覆盖的onload事件的函数---->由于我对js了解不多,这里我暂时理解为通过覆盖onload事件的函数来实现加载多个函数
+                    func(); //调用当前事件函数
                 }
             }
         }
         // 判断行为：大于某个时间长度
-        this.timeCompare_M = function(prevTime, visitTime, times) {
+        this.timeCompare_M = function (prevTime, visitTime, times) {
             return +visitTime - +prevTime > +times;
         }
         // URI加密 如果f为true,用encodeURI, false的话用encodeURIComponent 如果不支持前两者,用escape
-        this.encode = function(i, f) {
+        this.encode = function (i, f) {
             return encodeURIComponent instanceof Function ? (f ? encodeURI(i) : encodeURIComponent(i)) : escape(i)
         }
         // URI解密
-        this.decode = function(i, f) {
+        this.decode = function (i, f) {
             var tmp = "";
             i = i.split("+").join(" ");
             if (decodeURIComponent instanceof Function)
@@ -4542,20 +4613,21 @@ _pt_sp_2.push('setEngageEnabled,1');
             return tmp;
         }
         // 判断是否为空
-        this.isNull = function(i) {
+        this.isNull = function (i) {
             return undefined == i || "null" == i || -1 == i || "" == i;
         }
         // 前后去空白
-        this.trim = function(value) {
+        this.trim = function (value) {
             return value.replace(/(^\s*)/g, "").replace(/(\s*$)/g, "");
         }
         // 将二进制字符串进行BASE64编码
         //1、Url进行md5，得到一个128位的二进制串A
         //2、对A进行base64编码得到24个字符长的B
         //3、删除字符B最后的二个"="，得到22个字符长度的C
-        this.base64encodeForBin = function(binStr) {
+        this.base64encodeForBin = function (binStr) {
             var base64EncodeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/";
-            var out = "", i = 0;
+            var out = "",
+                i = 0;
             while (i < binStr.length / 6 - 1) {
                 out += base64EncodeChars.charAt(parseInt(binStr.slice(i * 6, (i + 1) * 6), 2).toString(10));
                 i++;
@@ -4572,8 +4644,11 @@ _pt_sp_2.push('setEngageEnabled,1');
             return out;
         }
         // 将十六进制的字符串转成二进制的字符串
-        this.Hex2Bin = function(hex) {
-            var bin = "", tmp = "", len = 0, tmpLength = hex.length;
+        this.Hex2Bin = function (hex) {
+            var bin = "",
+                tmp = "",
+                len = 0,
+                tmpLength = hex.length;
             for (var i = 0; i < tmpLength; i++) {
                 tmp = parseInt(hex.charAt(i), 16).toString(2);
                 len = tmp.length;
@@ -4585,16 +4660,18 @@ _pt_sp_2.push('setEngageEnabled,1');
             return bin;
         }
         // 输入Pt特有的ID串
-        this.createID = function(message) {
+        this.createID = function (message) {
             return this.base64encodeForBin(this.Hex2Bin(this.MD5(message)));
         }
         //md5模块-开始
-        this.MD5 = function(sMessage) {
-            var type = 32;//md5长度，这个值只被这一个函数使用，所以没必要放在外层作用域里面
+        this.MD5 = function (sMessage) {
+            var type = 32; //md5长度，这个值只被这一个函数使用，所以没必要放在外层作用域里面
             var jsMD5_Typ = type;
+
             function RotateLeft(lValue, iShiftBits) {
                 return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
             }
+
             function AddUnsigned(lX, lY) {
                 var lX4, lY4, lX8, lY8, lResult;
                 lX8 = (lX & 0x80000000);
@@ -4612,26 +4689,43 @@ _pt_sp_2.push('setEngageEnabled,1');
                 } else
                     return (lResult ^ lX8 ^ lY8);
             }
-            function F(x, y, z) {return (x & y) | ((~x) & z);}
-            function G(x, y, z) {return (x & z) | (y & (~z));}
-            function H(x, y, z) {return (x ^ y ^ z);}
-            function I(x, y, z) {return (y ^ (x | (~z)));}
+
+            function F(x, y, z) {
+                return (x & y) | ((~x) & z);
+            }
+
+            function G(x, y, z) {
+                return (x & z) | (y & (~z));
+            }
+
+            function H(x, y, z) {
+                return (x ^ y ^ z);
+            }
+
+            function I(x, y, z) {
+                return (y ^ (x | (~z)));
+            }
+
             function FF(a, b, c, d, x, s, ac) {
                 a = AddUnsigned(a, AddUnsigned(AddUnsigned(F(b, c, d), x), ac));
                 return AddUnsigned(RotateLeft(a, s), b);
             }
+
             function GG(a, b, c, d, x, s, ac) {
                 a = AddUnsigned(a, AddUnsigned(AddUnsigned(G(b, c, d), x), ac));
                 return AddUnsigned(RotateLeft(a, s), b);
             }
+
             function HH(a, b, c, d, x, s, ac) {
                 a = AddUnsigned(a, AddUnsigned(AddUnsigned(H(b, c, d), x), ac));
                 return AddUnsigned(RotateLeft(a, s), b);
             }
+
             function II(a, b, c, d, x, s, ac) {
                 a = AddUnsigned(a, AddUnsigned(AddUnsigned(I(b, c, d), x), ac));
                 return AddUnsigned(RotateLeft(a, s), b);
             }
+
             function ConvertToWordArray(sMessage) {
                 var lWordCount;
                 var lMessageLength = sMessage.length;
@@ -4655,8 +4749,11 @@ _pt_sp_2.push('setEngageEnabled,1');
 
                 return lWordArray;
             }
+
             function WordToHex(lValue) {
-                var WordToHexValue = "", WordToHexValue_temp = "", lByte, lCount;
+                var WordToHexValue = "",
+                    WordToHexValue_temp = "",
+                    lByte, lCount;
                 for (lCount = 0; lCount <= 3; lCount++) {
                     lByte = (lValue >>> (lCount * 8)) & 255;
                     WordToHexValue_temp = "0" + lByte.toString(16);
@@ -4666,10 +4763,22 @@ _pt_sp_2.push('setEngageEnabled,1');
             }
             var x = Array();
             var k, AA, BB, CC, DD, a, b, c, d
-            var S11 = 7, S12 = 12, S13 = 17, S14 = 22;
-            var S21 = 5, S22 = 9, S23 = 14, S24 = 20;
-            var S31 = 4, S32 = 11, S33 = 16, S34 = 23;
-            var S41 = 6, S42 = 10, S43 = 15, S44 = 21;
+            var S11 = 7,
+                S12 = 12,
+                S13 = 17,
+                S14 = 22;
+            var S21 = 5,
+                S22 = 9,
+                S23 = 14,
+                S24 = 20;
+            var S31 = 4,
+                S32 = 11,
+                S33 = 16,
+                S34 = 23;
+            var S41 = 6,
+                S42 = 10,
+                S43 = 15,
+                S44 = 21;
             // Steps 1 and 2. Append padding bits and length and convert to words
             x = ConvertToWordArray(sMessage);
             // Step 3. Initialise
@@ -4753,25 +4862,28 @@ _pt_sp_2.push('setEngageEnabled,1');
                 d = AddUnsigned(d, DD);
             }
             var TypNN;
-            if (jsMD5_Typ == '16'){TypNN = WordToHex(b) + WordToHex(c);}
-            if (jsMD5_Typ == '32'){TypNN = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);}
+            if (jsMD5_Typ == '16') {
+                TypNN = WordToHex(b) + WordToHex(c);
+            }
+            if (jsMD5_Typ == '32') {
+                TypNN = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);
+            }
             return TypNN;
+        }
+        // 按字节长度截取字符串(一个双字节如汉字按两个计算)
+        this.substringByByte = function (str, num) {
+            var index = 0;
+            for (var i = 0, len = str.length; i < len; i++) {
+                /[\x00-\xff]/.test(str[i]) ? index++ : index += 2;
+                if (index == num) {
+                    return str.substring(0, i + 1);
+                }
+                if (index > num) {
+                    return str.substring(0, i);
+                }
+            }
+            return str;
         };
-		
-		// 按字节长度截取字符串(一个双字节如汉字按两个计算)
-		this.substringByByte = function(str, num) {
-			var index = 0;
-			for(var i = 0, len = str.length; i < len; i ++) {
-				/[\x00-\xff]/.test(str[i]) ? index ++ : index += 2;
-				if(index == num) {
-					return str.substring(0, i + 1);
-				}
-				if(index > num) {
-					return str.substring(0, i);
-				}
-			}
-			return str;
-		};
     }
 
     //新版事件新增方法 开始
@@ -4782,7 +4894,7 @@ _pt_sp_2.push('setEngageEnabled,1');
      * @returns {Array}
      * @private
      */
-    function _queryElements( selector, text){
+    function _queryElements(selector, text) {
 
         //对新版事件的选择器进行 decode
         selector = objCommon.decode(selector);
@@ -4791,8 +4903,8 @@ _pt_sp_2.push('setEngageEnabled,1');
         var elementArray;
 
         try {
-            elementArray = doc.querySelectorAll ? doc.querySelectorAll(selector) : _querySelectorAll(selector);
-        }catch (e){
+            elementArray = document.querySelectorAll ? document.querySelectorAll(selector) : _querySelectorAll(selector);
+        } catch (e) {
             //IE8 虽然支持 querySelectorAll , 但不支持 css3 选择器的语法 , 所以遇到 :nth-child 会报错
             elementArray = _querySelectorAll(selector);
         }
@@ -4800,11 +4912,11 @@ _pt_sp_2.push('setEngageEnabled,1');
         var elements = [],
             elem;
         //筛选 符合text属性
-        if(text === undefined || text === ""){
+        if (text === undefined || text === "") {
             //不要求筛选 text ,直接返回整个数组
             elements = elementArray;
-        }else{
-            for(var i = 0, arrLength = elementArray.length; i < arrLength; i++) {
+        } else {
+            for (var i = 0, arrLength = elementArray.length; i < arrLength; i++) {
                 elem = elementArray[i];
                 objCommon.MD5(elem.text || "") === text ? elements.push(elem) : "";
             }
@@ -4814,7 +4926,7 @@ _pt_sp_2.push('setEngageEnabled,1');
     }
 
     /**
-     * 兼容 IE8, IE7,IE6下的doc.querySelectorAll 方法
+     * 兼容 IE8, IE7,IE6下的document.querySelectorAll 方法
      *
      * !!!此方法只适合 新版事件 生成的选择器!!!
      *
@@ -4828,43 +4940,43 @@ _pt_sp_2.push('setEngageEnabled,1');
      * @returns {Array}
      * @private
      */
-    function _querySelectorAll( selector, parent) {
+    function _querySelectorAll(selector, parent) {
 
-        var elements = [];   //存放符合的元素
+        var elements = []; //存放符合的元素
 
         var hasChild;
 
         selector = selector || [];
-        parent = parent || doc;
-        if(typeof selector === "string"){
+        parent = parent || document;
+        if (typeof selector === "string") {
             //将选择器拆分成数组 例如 "a > b > c"
             selector = selector.split(/\s|>/);
         }
 
-        if(selector.length === 0){
+        if (selector.length === 0) {
             return [];
         }
 
         //取出第一个 匹配选择器
         var match = selector.shift();
 
-        while(!match && selector.length > 0){
+        while (!match && selector.length > 0) {
             //如果取出来的第一个是 个 false 值, 继续下一个查找
             match = selector.shift();
         }
 
-        if(!match){
+        if (!match) {
             return [];
         }
 
         //是否还有子元素
         hasChild = selector.length !== 0;
 
-        var index = -1,     // 如 : div:nth-child(2), 这里的 index = 2
-            hasNthChild = match.match(/:nth-child\(\d\)/);   // 是否含有 :nth-child
+        var index = -1, // 如 : div:nth-child(2), 这里的 index = 2
+            hasNthChild = match.match(/:nth-child\(\d\)/); // 是否含有 :nth-child
 
         //如果含有  :nth-child, 获取下标
-        if(hasNthChild){
+        if (hasNthChild) {
             var nthChild = hasNthChild[0],
                 matchTagName = match.match(/[^:]*/g)[0];
 
@@ -4875,130 +4987,130 @@ _pt_sp_2.push('setEngageEnabled,1');
             var child = parent.children[index - 1];
 
             //如果 child 是空 或者 Child 与选择器的 nodeName 不匹配
-            if(!child || child.nodeName.toLowerCase() !== matchTagName){
+            if (!child || child.nodeName.toLowerCase() !== matchTagName) {
                 return [];
             }
 
             //如果还有子元素选择器, 继续回调
-            if(hasChild){
+            if (hasChild) {
                 return _querySelectorAll(selector, child);
-            }else{
+            } else {
                 elements.push(child);
                 return elements;
             }
 
-        }else{
+        } else {
 
-            var arrTemp,    //缓存数组迭代元素
-                elemArr = [],   //缓存元素数组
-                i,len,      //外层循环
-                j,inLen, elem;    //内层循环
+            var arrTemp, //缓存数组迭代元素
+                elemArr = [], //缓存元素数组
+                i, len, //外层循环
+                j, inLen, elem; //内层循环
 
             //这里的 match 函数操作后 返回的是一个数组
-            var tag = match.match(/[^#\.:\[]*/),     //nodeName
-                id = match.match(/#[^.:\[]*/),          //id
-                classes = match.match(/\.[^#:\[]*/),    //class
-                data = match.match(/\[[^#:\.]*/);       //属性
+            var tag = match.match(/[^#\.:\[]*/), //nodeName
+                id = match.match(/#[^.:\[]*/), //id
+                classes = match.match(/\.[^#:\[]*/), //class
+                data = match.match(/\[[^#:\.]*/); //属性
 
             tag && (tag = tag[0]);
             id && (id = id[0]);
             classes && (classes = classes[0]);
             data && (data = data[0]);
 
-            if(id){
+            if (id) {
                 id = id.replace("#", "");
 
-                elem = doc.getElementById(id);
+                elem = document.getElementById(id);
                 elem && elements.push(elem);
             }
 
-            if(tag){
+            if (tag) {
 
                 //如果 ID 不存在
-                if(!id){
+                if (!id) {
                     //使用 tag 选择器
-                    if(parent.querySelectorAll){
+                    if (parent.querySelectorAll) {
                         elements = parent.querySelectorAll(tag);
-                    }else{
+                    } else {
                         elements = parent.getElementsByTagName(tag);
                     }
                 }
             }
 
-            if(classes){
+            if (classes) {
 
                 //如果 id 并且 tag 都不存在
-                if(!id && !tag){
+                if (!id && !tag) {
                     /** id 与 tag 不存在, 使用 class 选择元素 */
-                    if(parent.querySelectorAll){
+                    if (parent.querySelectorAll) {
                         elements = parent.querySelectorAll(classes);
-                    }else if(parent.getElementsByClassName){
+                    } else if (parent.getElementsByClassName) {
                         //classes.replace(/\./g, " ") = ".a.b.c" => "a b c";
                         elements = parent.getElementsByClassName(classes.replace(/\./g, " "));
-                    }else{
-                        //IE7 下不支持 doc.getElementsByClassName, 先获取 parent 下面所有的
+                    } else {
+                        //IE7 下不支持 document.getElementsByClassName, 先获取 parent 下面所有的
                         elements = parent.getElementsByTagName("*");
                     }
                 }
 
             }
 
-            if(data){
+            if (data) {
 
-                if(!id && !tag && !classes){
-                    if(parent.querySelectorAll){
+                if (!id && !tag && !classes) {
+                    if (parent.querySelectorAll) {
                         elements = parent.querySelectorAll(data);
                     }
                 }
             }
 
-            var classArr  = classes ? classes.split(/\./) : [], // classArr => ["a", "b"];
-                dataArr = data ? data.split(/\[|]/g) : [],      // dataArr =>
-                classReg,       //class 的正则
-                dataNode,       //属性节点 => ['data-lang','abc'];
-                dataValue,      //属性 value => abc, 这个值会处理
-                isMatch;   //class 是否匹配
+            var classArr = classes ? classes.split(/\./) : [], // classArr => ["a", "b"];
+                dataArr = data ? data.split(/\[|]/g) : [], // dataArr =>
+                classReg, //class 的正则
+                dataNode, //属性节点 => ['data-lang','abc'];
+                dataValue, //属性 value => abc, 这个值会处理
+                isMatch; //class 是否匹配
             //筛选元素
-            for(i = 0, len = elements.length; i < len; i++ ){
+            for (i = 0, len = elements.length; i < len; i++) {
 
                 arrTemp = elements[i];
 
                 //tag 是否符合
-                if(tag && arrTemp.nodeName.toLowerCase() !== tag){
+                if (tag && arrTemp.nodeName.toLowerCase() !== tag) {
                     continue;
                 }
 
                 isMatch = !0;
 
                 //class 是否符合
-                if(classes){
-                    var className =" " + arrTemp.className + " ";   //两头添加空格, 便于正则去匹配
+                if (classes) {
+                    var className = " " + arrTemp.className + " "; //两头添加空格, 便于正则去匹配
 
-                    for(j = 0, inLen = classArr.length; j < inLen; j++){
-                        if(!classArr[j]){
+                    for (j = 0, inLen = classArr.length; j < inLen; j++) {
+                        if (!classArr[j]) {
                             continue;
                         }
 
                         //生成正则
                         classReg = new RegExp("\\s" + classArr[j] + "\\s");
 
-                        if(!classReg.test(className)){
+                        if (!classReg.test(className)) {
                             isMatch = !1;
                             break;
                         }
                     }
 
                     //跳过这次 elements 循环
-                    if(!isMatch){
+                    if (!isMatch) {
                         continue;
                     }
                 }
 
                 //判断 data 是否符合
-                if(data){
+                if (data) {
 
-                    for(j = 0, inLen = dataArr.length; j < inLen; j++){
-                        if(!dataArr[j]){
+                    for (j = 0, inLen = dataArr.length; j < inLen; j++) {
+                        if (!dataArr[j]) {
                             continue;
                         }
 
@@ -5012,13 +5124,13 @@ _pt_sp_2.push('setEngageEnabled,1');
                         //将内容中的单引号作替换
                         dataValue && (dataValue = dataValue.replace(/'/g, "\\'"));
 
-                        if(dataValue !== dataNode[1]){
+                        if (dataValue !== dataNode[1]) {
                             isMatch = !1;
                             break;
                         }
                     }
 
-                    if(!isMatch){
+                    if (!isMatch) {
                         continue;
                     }
                 }
@@ -5029,9 +5141,9 @@ _pt_sp_2.push('setEngageEnabled,1');
 
             elements = elemArr;
 
-            if(hasChild){
+            if (hasChild) {
                 return _querySelectorAll(selector, elements[0]);
-            }else{
+            } else {
                 return elements;
             }
         }
