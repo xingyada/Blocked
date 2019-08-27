@@ -52,6 +52,9 @@
     <h1 id="uaInfo">
     
     </h1>
+    <h1 id="hisInfo">
+
+    </h1>>
 	<a href="/apply.html" target="_blank" id="sqsy" >
 				<span class="icon-05"></span>
 				<p>申请试用</p>
@@ -71,37 +74,14 @@
         <li>222222222</li>
         <li>222222222</li>
         <li>222222222</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-		<li>1111222</li>
-        <li>1111222</li>
-        <li>1111222</li>
-        <li>222222222</li>
-        <li>222222222</li>
-        <li>222222222</li>
-        <li>222222222</li>
-        <li>222222222</li>
-        <li>222222222</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
-        <li>333333333333</li>
+  
     </ul>
 </body>
 <script>
     var uaInfo = document.getElementById('uaInfo');
+    var hisInfo = document.getElementById('hisInfo');
     var ua = navigator.userAgent;
-    var DOMstr = '';
+    var DOMstr = '',hisStr,hb=0;
 
     if(isPCByPlat() || isPCByOSList(ua)){
         DOMstr += '这是PC系统 <br>';
@@ -111,9 +91,18 @@
     }
     
     DOMstr += '这个浏览器的UA是：'+ua+'<br>';
-    DOMstr += '<br>history长度'+(history.length)
+
+    
     uaInfo.innerHTML = DOMstr;
 
+
+    setInterval(function(){
+        hb++
+        hisStr = '<br>history长度:'+(history.length)+'<br>检查中：'+hb+'次';
+
+        hisInfo.innerHTML = hisStr;
+    },200)
+    
 
 
     function isPCByPlat() {
