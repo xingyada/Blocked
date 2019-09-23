@@ -39,7 +39,7 @@ _pt_sp_2.push('setTrackEvent,,,%E6%8C%89%E9%92%AEhome,0,false,^https?:\\/\\/(?:[
 _pt_sp_2.push('setCamParam,utm_name,utm_ref,utm_source');
 _pt_sp_2.push('setServer,0');
 _pt_sp_2.push('setEventReport,true');/*event open*/ 
-_pt_sp_2.push('setEngageEnabled,1');
+_pt_sp_2.push('setEngageEnabled,0');
 
 (function (undefined) {
     if (!window["edc7uo"]) { // 热图开启状态，-1：全开启；[]：数组内页面开启；
