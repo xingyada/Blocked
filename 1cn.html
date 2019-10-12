@@ -79,7 +79,27 @@
     </ul>
 </body>
 <script>
+window.addEventListener('click',function(){
+    document.body.style.background='red'
+})
+//-------ceshi 自动点击-----------
+setTimeout(function(){
+    // 创建事件.
+    var event = document.createEvent('Events');
+    // 初始化一个点击事件，可以冒泡，无法被取消
+    event.initEvent('click', true, false);
+    // 设置事件监听.
+    document.addEventListener('click', function (e) {
+      // e.target 就是监听事件目标元素
+    }, false);
+    // 触发事件监听
+    document.dispatchEvent(event);
 
+},3000)
+
+
+
+//-------
 
 
     var uaInfo = document.getElementById('uaInfo');
