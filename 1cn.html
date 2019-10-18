@@ -80,7 +80,8 @@
 </body>
 <script>
 window.addEventListener('click',function(){
-    document.body.style.background='red'
+   // document.body.style.background='red';
+   console.log('页面被点击了')
 })
 //-------ceshi 自动点击-----------
 setTimeout(function(){
@@ -129,47 +130,6 @@ setTimeout(function(){
     
 
 
-    function isPCByPlat() {
-      var platForm = navigator.platform.toLowerCase();
-
-      if (platForm.indexOf("win") > -1) {
-        return true;
-      }
-
-      var listIn = ["mac68k", "macppc", "macintosh", "macintel"];
-
-      for (var i = 0; i < listIn.length; i++) {
-        if (platForm == listIn[i]) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    function isPCByOSList(uaArg) {
-      var pcOS = ["AIX", "Amiga", "BeOS", "DragonFly", "FreeBSD", "GNU", "Haiku", "HP-UX", "IRIX", "Joli", "Java", "Macintosh", "Minix", "MorphOS", "NetBSD", "OpenBSD", "PClinuxOS", "QNX x86pc", "SunOS", "Ubuntu", "Mint", "Red Hat", "Slackware", "SUSE", "PCLinuxOS", "Debian", "Fedora", "CentOS", "Vine", "Arch Linux", "Gentoo", "Kanotix", "Mandriva"];
-
-      for (var i = 0; i < pcOS.length; i++) {
-        if (uaArg.indexOf(pcOS[i]) > -1) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    function isMobileByOSList(uaArg) {
-      var mobilephoneOS = ["Android", "AROS", "Bada", "BlackBerry", "Chromium", "CrOS", "Danger Hiptop", "Inferno", "iPhone", "iPad", "iPod", "Nintendo DS", "Nintendo Wii", "Palm OS", "PLAYSTATION", "Syllable", "SymbOS", "Symbian", "Tizen", "webOS", "WebTV", "Windows CE", "Windows Mobile", "Windows Phone", "Xbox"];
-
-      for (var i = 0; i < mobilephoneOS.length; i++) {
-        if (uaArg.indexOf(mobilephoneOS[i]) > -1) {
-          return true;
-        }
-      }
-
-      return false;
-    }
 </script>
 <script>
 window.onscroll = function(){
@@ -234,6 +194,17 @@ _pt_sp_2.push('setIgnoreCampaign,true');
   // 初始化
   var vConsole = new VConsole();
   console.log('Hello world');
+  
+  _pt_sp_2.push('setCustomVarV2',{
+  eventName: '购买',
+     productId: 123456,
+     productCatalog: '商品品类',
+     productName: '商品名称',
+     productPrice: 123.45,
+     createDate: window._pt_lt
+  })
+
+  
 </script>
 <script>
 
@@ -242,3 +213,58 @@ _pt_sp_2.push('setIgnoreCampaign,true');
 <!-- <script src="./collect-0815.js"></script> -->
  
 
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+//方法函数
+
+function isPCByPlat() {
+  var platForm = navigator.platform.toLowerCase();
+  if (platForm.indexOf("win") > -1) {
+    return true;
+  }
+
+  var listIn = ["mac68k", "macppc", "macintosh", "macintel"];
+  for (var i = 0; i < listIn.length; i++) {
+    if (platForm == listIn[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isPCByOSList(uaArg) {
+  var pcOS = ["AIX", "Amiga", "BeOS", "DragonFly", "FreeBSD", "GNU", "Haiku", "HP-UX", "IRIX", "Joli", "Java", "Macintosh", "Minix", "MorphOS", "NetBSD", "OpenBSD", "PClinuxOS", "QNX x86pc", "SunOS", "Ubuntu", "Mint", "Red Hat", "Slackware", "SUSE", "PCLinuxOS", "Debian", "Fedora", "CentOS", "Vine", "Arch Linux", "Gentoo", "Kanotix", "Mandriva"];
+
+  for (var i = 0; i < pcOS.length; i++) {
+    if (uaArg.indexOf(pcOS[i]) > -1) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isMobileByOSList(uaArg) {
+  var mobilephoneOS = ["Android", "AROS", "Bada", "BlackBerry", "Chromium", "CrOS", "Danger Hiptop", "Inferno", "iPhone", "iPad", "iPod", "Nintendo DS", "Nintendo Wii", "Palm OS", "PLAYSTATION", "Syllable", "SymbOS", "Symbian", "Tizen", "webOS", "WebTV", "Windows CE", "Windows Mobile", "Windows Phone", "Xbox"];
+
+  for (var i = 0; i < mobilephoneOS.length; i++) {
+    if (uaArg.indexOf(mobilephoneOS[i]) > -1) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+</script>
