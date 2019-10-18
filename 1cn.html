@@ -78,84 +78,6 @@
   
     </ul>
 </body>
-<script>
-window.addEventListener('click',function(){
-   // document.body.style.background='red';
-   console.log('页面被点击了')
-})
-//-------ceshi 自动点击-----------
-setTimeout(function(){
-    // 创建事件.
-    var event = document.createEvent('Events');
-    // 初始化一个点击事件，可以冒泡，无法被取消
-    event.initEvent('click', true, false);
-    // 设置事件监听.
-    document.addEventListener('click', function (e) {
-      // e.target 就是监听事件目标元素
-    }, false);
-    // 触发事件监听
-    document.dispatchEvent(event);
-
-},3000)
-
-
-
-//-------
-
-
-    var uaInfo = document.getElementById('uaInfo');
-    var hisInfo = document.getElementById('hisInfo');
-    var ua = navigator.userAgent;
-    var DOMstr = '',hisStr,hb=0;
-
-    if(isPCByPlat() || isPCByOSList(ua)){
-        DOMstr += '这是PC系统 <br>';
-    }
-    if(isMobileByOSList(ua)){
-        DOMstr += '这是手机系统 <br>';
-    }
-    
-    DOMstr += '这个浏览器的UA是：'+ua+'<br>';
-
-    
-    uaInfo.innerHTML = DOMstr;
-
-
-    setInterval(function(){
-        hb++
-        hisStr = '<br>history长度:'+(history.length)+'<br>检查中：'+hb+'次';
-
-        hisInfo.innerHTML = hisStr;
-    },200)
-    
-
-
-</script>
-<script>
-window.onscroll = function(){
-    sTop = document.documentElement.scrollTop;
-    if(sTop>2000){
-        $('li').html('aaaaaaaaaaaa');
-        $('li').addClass('bgcolor');
-    }
-}
-
-$(function(){
-/*    $('body').click(function(){
-        history.replaceState("beforeunload", null, null);
-        history.pushState("back", null, null);
-        window.addEventListener && window.addEventListener('popstate', function (e) {
-            if (e.state === "beforeunload") {
-                // ag_stopper_req();
-            alert('后退弹出')
-            }
-        })
-        document.write(history.state)
-    })*/
-})
-</script>
-
-
 
 <script type="text/javascript">
 //中国区
@@ -240,6 +162,62 @@ var _hmt = _hmt || [];
 
 
 <script>
+window.addEventListener('click',function(){
+   // document.body.style.background='red';
+   console.log('页面被点击了')
+})
+//-------ceshi 自动点击-----------
+setTimeout(function(){
+    // 创建事件.
+    var event = document.createEvent('Events');
+    // 初始化一个点击事件，可以冒泡，无法被取消
+    event.initEvent('click', true, false);
+    // 设置事件监听.
+    document.addEventListener('click', function (e) {
+      // e.target 就是监听事件目标元素
+    }, false);
+    // 触发事件监听
+    document.dispatchEvent(event);
+
+},3000)
+
+
+
+//-------
+
+
+    var uaInfo = document.getElementById('uaInfo');
+    var hisInfo = document.getElementById('hisInfo');
+    var ua = navigator.userAgent;
+    var DOMstr = '',hisStr,hb=0;
+
+    if(isPCByPlat() || isPCByOSList(ua)){
+        DOMstr += '这是PC系统 <br>';
+    }
+    if(isMobileByOSList(ua)){
+        DOMstr += '这是手机系统 <br>';
+    }
+    
+    DOMstr += '这个浏览器的UA是：'+ua+'<br>';
+
+    
+    uaInfo.innerHTML = DOMstr;
+
+
+    setInterval(function(){
+        hb++
+        hisStr = '<br>history长度:'+(history.length)+'<br>检查中：'+hb+'次';
+
+        hisInfo.innerHTML = hisStr;
+    },200)
+    
+
+
+
+
+
+
+
 //方法函数
 
 function isPCByPlat() {
