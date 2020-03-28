@@ -8,16 +8,19 @@
 	<script type="text/javascript" src="js/phone.js" ></script>
 	<!-- 铂金代码开始 普通话 12.16 -->    
 	<script type="text/javascript">
-	        window._pt_lt = new Date().getTime();
-	        window._pt_sp_2 = [];
-	        _pt_sp_2.push('setAccount,379cf787');
-	        var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-	        (function() {
-	            var atag = document.createElement('script'); atag.type = 'text/javascript'; atag.async = true;
-	            atag.src = _protocol + 'js.ptengine.cn/379cf787.js';
-	            var s = document.getElementsByTagName('script')[0];
-	            s.parentNode.insertBefore(atag, s);
-	        })();
+	         window._pt_lt =  window._pt_lt || new Date().getTime();
+			  var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+			  (function() {
+			      if(window._pt_sp_2){ return }
+			      window._pt_sp_2 = [];
+			      _pt_sp_2.push('setAccount,3c8a67ba');
+			      var atag = document.createElement('script'); atag.type = 'text/javascript'; atag.async = true;
+			      atag.src = _protocol + 'js.ptengine.cn/3c8a67ba.js';
+			      var s = document.getElementsByTagName('script')[0];
+			      s.parentNode.insertBefore(atag, s);
+			  })();
+			  _pt_sp_2.push('setIgnoreCampaign,true');
+
 	    </script>
 
 	<!-- 铂金代码结束 普通话 12.16 -->
