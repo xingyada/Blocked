@@ -44,6 +44,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			background:#fff;
 		}
 		
+    .footer{
+      height: 100px;
+      width:100%;
+      background: aqua;
+      position: fixed;
+      bottom: 0;
+    }
 	</style>
 </head>
 <body>    
@@ -58,7 +65,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 	<h1>
 	20190419测试不给a标签样式，分析热图绘制是否异常
 	</h1>
-    <a href="#" class="sameclass">
+    <a href="#" id="top" class="sameclass">
         <img src="https://via.placeholder.com/350x150.jpg" alt="">
 		
     </a>
@@ -89,6 +96,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <li>222222222</li>
   
     </ul>
+
+
+    <div class="footer">
+        <a href="#top">返回顶部</a>
+    </div>
 </body>
 
 <script type="text/javascript">
