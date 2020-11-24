@@ -92,13 +92,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </ul>
 
 
-
+  <!-- Emojics Inline Code -->
+  <div id="emojics-root"></div>
     <a href="#top">
         <div class="footer">
           <h1>返回顶部</h1>
         </div>
     </a>
-
+    <!-- Start of Emojics Code -->
+    <script>
+      window.emojicsOpts = {
+      widget: '69cea4e2299bd669bc49e1ce059aea',
+      position: 'inline'
+      };
+      (function(d, e, id) {
+        function s() {var js, a = d.getElementsByTagName("script")[0];js = d.createElement("script");js.id = id;js.src = "//connect.emojics.com/dist/sdk.js";a.parentNode.insertBefore(js, a);}
+        window.emojics=e;e.readyQueue=[];e.ready=function(b){e.readyQueue.push(b)}
+        window.attachEvent?window.attachEvent("onload",s):window.addEventListener("load",s)
+      })(document, window.emojics||{}, "emojics-js");
+    </script>
+    <!-- End of Emojics Code -->
 </body>
 
     <script type="text/javascript">
