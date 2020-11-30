@@ -4,11 +4,39 @@
 	<meta charset="UTF-8">
 	<title>Document</title>
 	<script src="https://js.ptengine.jp/2cf175ca.js"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
 
 	<h1>2020年10月20日测试</h1>
 	<h2>ptengine</h2>
 	<a href="https://xingyada.github.io/Blocked/2jp.html">back to 2jp</a>
+	<script>
+function getCookie(name) 
+{ 
+    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
+　　 return (arr=document.cookie.match(reg))?unescape(arr[2]):null;
+}
+	
+$('a').click(function(){
+	ptengine.track("check_out", {
+		product_category: "back to 2jp",
+		product_pricing: "1111"
+	});
+})
+
+var ptcookie = getCookie('pt_7d421c5e'),userName;
+ptcookie.split('&').forEach((item,i)=>{
+    if(item.indexOf('uid=') != -1){
+		return userName = item.split('=')[1]
+	}
+})
+
+if(userName){
+	ptengine.identify( userName, {
+    created_at: new Date(),
+})
+}
+	</script>
 </body>
 </html>
