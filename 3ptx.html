@@ -24,7 +24,7 @@
 	<h1>2020年10月20日测试</h1>
 	<h2 id="addCar">加入购物车</h2>
 	<h2>
-		<a href="tel:10086">拨打电话</a>
+		<a id="phone">拨打电话</a>
 	</h2>
 	<a href="https://xingyada.github.io/Blocked/2jp.html">back to 2jp</a>
 	<script>
@@ -32,6 +32,10 @@
 $('#addCar').click(function(){
 	alert('加入购物车成功')
 	_baq.track("shopping", { assets_id: "1709032042930179", product_name: '鞋子', product_price: 100 })
+})
+$('#phone').click(function(){
+	alert('拨打电话')
+	_baq.track("phone")
 })
 function getCookie(name) 
 { 
