@@ -22,9 +22,14 @@
 <body>
 
 	<h1>2020年10月20日测试</h1>
-	<h2 onclick="_baq.track(\"shopping\", { assets_id: \"1709032042930179\", product_name: '鞋子', product_price: 100 })">dadatest</h2>
+	<h2>dadatest</h2>
 	<a href="https://xingyada.github.io/Blocked/2jp.html">back to 2jp</a>
 	<script>
+		
+$('h2').click(function(){
+	alert('click')
+	_baq.track("shopping", { assets_id: "1709032042930179", product_name: '鞋子', product_price: 100 })
+})
 function getCookie(name) 
 { 
     var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
