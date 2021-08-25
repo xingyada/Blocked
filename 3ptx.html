@@ -22,6 +22,7 @@
 <body>
 
 	<h1>2020年10月20日测试</h1>
+	<h1 id='outputInfo'></h1>
 	<h2 id="addCar">加入购物车</h2>
 	<h2>
 		<a id="phone">拨打电话</a>
@@ -42,7 +43,9 @@ $('#phone').click(function(){
 })
 		
 		
-console.log(location.href)
+setTimeout(function(){
+	$('#outputInfo').html(location.href)
+},1000)
 $('#sendtt').click(function(){
 	//alert('回传成功')
 	$.ajax({
