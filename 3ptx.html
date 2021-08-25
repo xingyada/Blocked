@@ -26,6 +26,9 @@
 	<h2>
 		<a id="phone">拨打电话</a>
 	</h2>
+	<h2>
+		<button id="sendtt">回传给头条</button>
+	</h2>
 	<a href="https://xingyada.github.io/Blocked/2jp.html">back to 2jp</a>
 	<script>
 		
@@ -37,6 +40,32 @@ $('#phone').click(function(){
 	alert('拨打电话')
 	_baq.track("phone")
 })
+		
+		
+console.log(location.href)
+$('#sendtt').click(function(){
+	//alert('回传成功')
+	$.ajax({
+		url:'https://analytics.oceanengine.com/api/v2/conversion',
+		type:'POST',
+		dataType: "json",
+		data:{
+			    "event_type": "active", 
+			    "context": {
+				"ad": {
+				    "callback": "EPHk9cX3pv4CGJax4ZENKI7w4MDev_4C",//callback 这里需要填写的就是从启动参数里获取的 clickid
+				}
+
+			    },
+			    "timestamp": 1604888786102
+			},
+		success:function(){
+			alert('回传成功！！！')
+		}
+	})
+})		
+		
+		
 function getCookie(name) 
 { 
     var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
