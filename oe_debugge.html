@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>联调</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
+      crossorigin="anonymous"
+    />
+    <!-- Bytedance Tracking -->
+    <script>
+      (function (r, d, s) {
+        r._tt_config = true;
+        var _baq = (r._baq = r._baq || []);
+        _baq.methods = ["track", "off", "on"];
+        _baq.factory = function (method) {
+          return function () {
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift(method);
+            _baq.push(args);
+            return _baq;
+          };
+        };
+        for (var i = 0; i < _baq.methods.length; i++) {
+          var key = _baq.methods[i];
+          _baq[key] = _baq.factory(key);
+        }
+        _baq.load = function () {
+          var js,
+            fjs = d.getElementsByTagName(s)[0];
+          js = d.createElement(s);
+          js.src = "https://analytics.oceanengine.com/api/v2/js/sdk";
+          fjs.parentNode.insertBefore(js, fjs);
+        };
+        _baq.load();
+        if (_baq.invoked) {
+          return;
+        }
+        _baq.invoked = true;
+        _baq.track("pageview");
+      })(window, document, "script");
+    </script>
+    <!-- End Bytedance Tracking -->
+    <style>
+      #outputInfo {
+        width: 100%;
+        word-wrap: break-word;
+      }
+      .button_wrap {
+        padding-top: 30px;
+      }
+      .js_back {
+        background-color: #efefef;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .api_back {
+        margin-top: 30px;
+        background-color: #efefef;
+        padding: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="jumbotron">联调测试</h1>
+      <div class="container js_back">
+        <h3>JS回传</h3>
+        <div class="form-group">
+          <label for="assets_id">资产ID</label>
+          <input
+            type="text"
+            class="form-control"
+            id="assets_id"
+            placeholder="请输入资产id"
+          />
+        </div>
+        <h3>当前页面URL</h3>
+        <code id="outputInfo"></code>
+        <h3>click id</h3>
+        <code id="clickid"></code>
+        <div class="button_wrap">
+          <button id="addCar" type="button" class="btn btn-lg btn-danger">
+            JS加入购物车
+          </button>
+          <button id="phone" type="button" class="btn btn-lg btn-warning">
+            JS拨打电话
+          </button>
+        </div>
+      </div>
+      <div class="container api_back">
+        <h3>API回传</h3>
+        <h4 class="alert alert-success">请选定回传的类型</h4>
+        <div class="radio">
+          <label>
+            <input
+              type="radio"
+              name="optionsRadios"
+              id="optionsRadios1"
+              value="active"
+              checked
+            />
+            激活-active
+          </label>
+        </div>
+        <div class="radio">
+          <label>
+            <input
+              type="radio"
+              name="optionsRadios"
+              id="optionsRadios2"
+              value="form"
+            />
+            表单提交-form
+          </label>
+        </div>
+        <div class="radio">
+          <label>
+            <input
+              type="radio"
+              name="optionsRadios"
+              id="optionsRadios3"
+              value="phone"
+            />
+            电话咨询-phone
+          </label>
+        </div>
+        <button id="sendtt" type="button" class="btn btn-lg btn-success">
+          立即回传
+        </button>
+        <h3>UA信息</h3>
+        <div class="well">
+          <p></p>
+        </div>
+      </div>
+    </div>
+    <script>
+      $("#addCar").click(function () {
+        alert("加入购物车成功");
+        _baq.track("shopping", {
+          assets_id: $("#assets_id").val() || "1709032042930179",
+        });
+      });
+      $("#phone").click(function () {
+        alert("拨打电话");
+        _baq.track("phone", {
+          assets_id: $("#assets_id").val() || "1709032042930179",
+        });
+      });
+
+      let current_search = location.search;
+      let clickid =
+        (current_search.indexOf("clickid=") > 0 &&
+          current_search.split("clickid=")[1].split("&")[0]) ||
+        "当前页面没有发现clickID";
+      setTimeout(function () {
+        $("#outputInfo").html(location.href);
+        $("#clickid").html(clickid);
+      }, 1000);
+
+      $("#sendtt").click(function () {
+          if(current_search.indexOf("clickid=") < 0) {
+              alert('当前页面没有发现clickID')
+              return
+          }
+        let event_type = $('[ name="optionsRadios"]:checked').val();
+        let tag = document.createElement("script");
+        let back_url = decodeURIComponent(
+          `clickid=${clickid}&event_type=${event_type}`
+        );
+        tag.src = `https://ad.oceanengine.com/track/activate/?${back_url}`;
+        $("body").append(tag);
+      });
+      
+      $(".well p").html(navigator.userAgent);
+    </script>
+  </body>
+</html>
